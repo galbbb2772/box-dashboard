@@ -57,6 +57,24 @@ function table(rows,cols){
  $("#monthlyTable").innerHTML=table(months.map(m=>({month:m,a:m300[m],b:m500[m],spy:mspy[m],qqq:mqqq[m],dia:mdia[m]})),[
    ["Month",r=>r.month],["Top300",r=>pct(r.a)],["Top500",r=>pct(r.b)],["SPY",r=>pct(r.spy)],["QQQ",r=>pct(r.qqq)],["DIA",r=>pct(r.dia)]
  ]);
+ Plotly.newPlot("capitalChart",[
+   {x:p.series.top300.map(x=>x.date),y:p.series.top300.map(x=>x.equity*100000),name:"Top300",type:"scatter",mode:"lines"},
+   {x:p.series.top500.map(x=>x.date),y:p.series.top500.map(x=>x.equity*100000),name:"Top500",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.SPY.series.map(x=>x.date),y:bm.benchmarks.SPY.series.map(x=>x.equity*100000),name:"SPY",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.QQQ.series.map(x=>x.date),y:bm.benchmarks.QQQ.series.map(x=>x.equity*100000),name:"QQQ",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.DIA.series.map(x=>x.date),y:bm.benchmarks.DIA.series.map(x=>x.equity*100000),name:"DIA",type:"scatter",mode:"lines"}
+ ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Account value",tickprefix:"$"}},{responsive:true,displaylogo:false});
+
+ $("#periodComparison").innerHTML=table([
+   {name:"Simple Core Top300",ret:d.simple_core.transport.top300.total_return,mdd:d.simple_core.transport.top300.max_drawdown,sh:d.simple_core.transport.top300.sharpe,exposure:d.simple_core.transport.top300.avg_exposure,end:100000*(1+d.simple_core.transport.top300.total_return)},
+   {name:"Simple Core Top500",ret:d.simple_core.transport.top500.total_return,mdd:d.simple_core.transport.top500.max_drawdown,sh:d.simple_core.transport.top500.sharpe,exposure:d.simple_core.transport.top500.avg_exposure,end:100000*(1+d.simple_core.transport.top500.total_return)},
+   {name:"SPY",ret:bm.benchmarks.SPY.total_return,mdd:bm.benchmarks.SPY.max_drawdown,sh:bm.benchmarks.SPY.annualized_sharpe_price_return,exposure:1,end:100000*(1+bm.benchmarks.SPY.total_return)},
+   {name:"QQQ",ret:bm.benchmarks.QQQ.total_return,mdd:bm.benchmarks.QQQ.max_drawdown,sh:bm.benchmarks.QQQ.annualized_sharpe_price_return,exposure:1,end:100000*(1+bm.benchmarks.QQQ.total_return)},
+   {name:"DIA",ret:bm.benchmarks.DIA.total_return,mdd:bm.benchmarks.DIA.max_drawdown,sh:bm.benchmarks.DIA.annualized_sharpe_price_return,exposure:1,end:100000*(1+bm.benchmarks.DIA.total_return)}
+ ],[
+   ["Series",r=>r.name],["Return",r=>pct(r.ret)],["Max DD",r=>pct(r.mdd)],["Sharpe",r=>num(r.sh)],["Avg exposure",r=>pct(r.exposure)],["$100k →",r=>"$"+Math.round(r.end).toLocaleString()]
+ ]);
+
  $("#efficiencyTable").innerHTML=table([
    {name:"Simple Core Top300",ret:d.simple_core.transport.top300.total_return,exposure:d.simple_core.transport.top300.avg_exposure,eff:d.simple_core.transport.top300.total_return/d.simple_core.transport.top300.avg_exposure},
    {name:"Simple Core Top500",ret:d.simple_core.transport.top500.total_return,exposure:d.simple_core.transport.top500.avg_exposure,eff:d.simple_core.transport.top500.total_return/d.simple_core.transport.top500.avg_exposure},

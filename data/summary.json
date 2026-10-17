@@ -1,0 +1,173 @@
+{
+  "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V1",
+  "as_of": "2026-10-17",
+  "source_window": "through 2026-10-05",
+  "production_strategy": null,
+  "counts": {
+    "formalized": 10,
+    "reconstruct": 6,
+    "forward": 2,
+    "holdout": 4
+  },
+  "strategies": [
+    {
+      "id": "BOX-L1",
+      "name": "Pure Box Candidate V1",
+      "role": "Legacy lineage",
+      "status": "LEGACY",
+      "evidence": "Holdout + Forward records"
+    },
+    {
+      "id": "BOX-R1",
+      "name": "Simple Core Candidate V1",
+      "role": "Research baseline",
+      "status": "FROZEN",
+      "evidence": "Transport holdout + Forward observer"
+    },
+    {
+      "id": "BOX-H1",
+      "name": "Simple Core Transport V17",
+      "role": "Holdout evidence",
+      "status": "HOLDOUT",
+      "evidence": "Post-discovery transport"
+    },
+    {
+      "id": "BOX-C1",
+      "name": "Simple Core Capital Candidate V2",
+      "role": "Capital challenger",
+      "status": "RESEARCH",
+      "evidence": "Research only"
+    },
+    {
+      "id": "BOX-C2",
+      "name": "Gap Retest-Lift V1",
+      "role": "Frozen challenger",
+      "status": "FORWARD_PENDING",
+      "evidence": "8/8 primary holdout checks passed"
+    },
+    {
+      "id": "BOX-H2",
+      "name": "Gap Retest-Lift Holdout V8",
+      "role": "Holdout evidence",
+      "status": "HOLDOUT",
+      "evidence": "Post-discovery interaction holdout"
+    },
+    {
+      "id": "BOX-H3",
+      "name": "Gap Tail Factor Holdout V6",
+      "role": "Holdout evidence",
+      "status": "HOLDOUT",
+      "evidence": "4/8 checks passed"
+    },
+    {
+      "id": "BOX-H4",
+      "name": "Gap Tail Holdout V1",
+      "role": "Legacy holdout",
+      "status": "LEGACY",
+      "evidence": "Do not promote global exclusion"
+    },
+    {
+      "id": "BOX-S1",
+      "name": "Upper Box 50",
+      "role": "Sizing shadow",
+      "status": "SHADOW",
+      "evidence": "Historical / shadow only"
+    },
+    {
+      "id": "BOX-S2",
+      "name": "Stock Sector Box A/B",
+      "role": "Research shadow",
+      "status": "RESEARCH",
+      "evidence": "Preregistered research"
+    }
+  ],
+  "simple_core": {
+    "transport": {
+      "label": "POST_DISCOVERY_TRANSPORT_HOLDOUT",
+      "oos_start": "2026-04-01",
+      "oos_end": "2026-10-05",
+      "top300": {
+        "total_return": 0.10146780005661071,
+        "max_drawdown": -0.05354093067633159,
+        "sharpe": 2.0233645896812655,
+        "avg_exposure": 0.2587596000822858,
+        "completed_trades": 53,
+        "profit_factor": 1.5192894502799503
+      },
+      "top500": {
+        "total_return": 0.054451934404939006,
+        "max_drawdown": -0.05312912035131334,
+        "sharpe": 0.9114218712334348,
+        "avg_exposure": 0.3897178089598021,
+        "completed_trades": 89,
+        "profit_factor": 1.1216612866799438
+      }
+    }
+  },
+  "gap_retest": {
+    "primary_passed": 8,
+    "primary_total": 8,
+    "all_passed": true
+  },
+  "gap_tail": {
+    "passed_checks": 4,
+    "total_checks": 8,
+    "decision": "DO_NOT_PROMOTE_GLOBAL_EXCLUSION",
+    "public_note": "Holdout evidence was mixed across universes, so the global hard-exclusion idea was not promoted."
+  },
+  "forward": {
+    "simple_core": {
+      "status": "AWAITING_ANCHOR",
+      "freeze_date": "2026-10-07",
+      "first_signal_date": "2026-10-08",
+      "closed_trades": 0,
+      "months_observed": 0,
+      "trade_gate": 100,
+      "month_gate": 12
+    },
+    "gap_retest": {
+      "status": "FORWARD_OOS_PENDING",
+      "freeze_date": "2026-10-07",
+      "first_signal_date": "2026-10-08",
+      "closed_trades": 0
+    }
+  },
+  "reconstruct": [
+    {
+      "id": "BOX-X1",
+      "name": "Large Box / Small Box",
+      "status": "RECONSTRUCT",
+      "next": "Recover formal historical artifacts"
+    },
+    {
+      "id": "BOX-X2",
+      "name": "Wall A / B / C",
+      "status": "RECONSTRUCT",
+      "next": "Rebuild lifecycle research record"
+    },
+    {
+      "id": "BOX-X3",
+      "name": "Guidance 60/70/80/90",
+      "status": "RECONSTRUCT",
+      "next": "Restore arrival-rate studies"
+    },
+    {
+      "id": "BOX-X4",
+      "name": "A+B Core",
+      "status": "RECONSTRUCT",
+      "next": "Recover frozen definition and evidence"
+    },
+    {
+      "id": "BOX-X5",
+      "name": "Geometry / Geometry V3 / RC1",
+      "status": "RECONSTRUCT",
+      "next": "Formalize spec before new holdout"
+    },
+    {
+      "id": "BOX-X6",
+      "name": "Cross-Scale / Nested Box",
+      "status": "RECONSTRUCT",
+      "next": "Restore parent-child box studies"
+    }
+  ]
+}

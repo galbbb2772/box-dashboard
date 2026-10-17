@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const [d,p,bm]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json())]);
+ const [d,p,bm]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -37,32 +37,32 @@ function table(rows,cols){
  Plotly.newPlot("equityChart",[
    {x:p.series.top300.map(x=>x.date),y:p.series.top300.map(x=>x.equity),name:"Simple Core Top300",type:"scatter",mode:"lines"},
    {x:p.series.top500.map(x=>x.date),y:p.series.top500.map(x=>x.equity),name:"Simple Core Top500",type:"scatter",mode:"lines"},
-   {x:p.benchmarks.SPY.series.map(x=>x.date),y:p.benchmarks.SPY.series.map(x=>x.equity),name:"SPY",type:"scatter",mode:"lines"},
-   {x:p.benchmarks.QQQ.series.map(x=>x.date),y:p.benchmarks.QQQ.series.map(x=>x.equity),name:"QQQ",type:"scatter",mode:"lines"},
-   {x:p.benchmarks.DIA.series.map(x=>x.date),y:p.benchmarks.DIA.series.map(x=>x.equity),name:"DIA",type:"scatter",mode:"lines"}
+   {x:bm.benchmarks.SPY.series.map(x=>x.date),y:bm.benchmarks.SPY.series.map(x=>x.equity),name:"SPY",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.QQQ.series.map(x=>x.date),y:bm.benchmarks.QQQ.series.map(x=>x.equity),name:"QQQ",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.DIA.series.map(x=>x.date),y:bm.benchmarks.DIA.series.map(x=>x.equity),name:"DIA",type:"scatter",mode:"lines"}
  ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Normalized equity"}},{responsive:true,displaylogo:false});
  Plotly.newPlot("drawdownChart",[
    {x:p.drawdown.top300.map(x=>x.date),y:p.drawdown.top300.map(x=>x.drawdown*100),name:"Top300",type:"scatter",mode:"lines"},
    {x:p.drawdown.top500.map(x=>x.date),y:p.drawdown.top500.map(x=>x.drawdown*100),name:"Top500",type:"scatter",mode:"lines"},
-   {x:p.benchmarks.SPY.series.map(x=>x.date),y:p.benchmarks.SPY.series.map(x=>x.drawdown*100),name:"SPY",type:"scatter",mode:"lines"},
-   {x:p.benchmarks.QQQ.series.map(x=>x.date),y:p.benchmarks.QQQ.series.map(x=>x.drawdown*100),name:"QQQ",type:"scatter",mode:"lines"},
-   {x:p.benchmarks.DIA.series.map(x=>x.date),y:p.benchmarks.DIA.series.map(x=>x.drawdown*100),name:"DIA",type:"scatter",mode:"lines"}
+   {x:bm.benchmarks.SPY.series.map(x=>x.date),y:bm.benchmarks.SPY.series.map(x=>x.drawdown*100),name:"SPY",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.QQQ.series.map(x=>x.date),y:bm.benchmarks.QQQ.series.map(x=>x.drawdown*100),name:"QQQ",type:"scatter",mode:"lines"},
+   {x:bm.benchmarks.DIA.series.map(x=>x.date),y:bm.benchmarks.DIA.series.map(x=>x.drawdown*100),name:"DIA",type:"scatter",mode:"lines"}
  ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Drawdown %",ticksuffix:"%"}},{responsive:true,displaylogo:false});
  const m300=Object.fromEntries(p.monthly.top300.map(x=>[x.month,x.return]));
  const m500=Object.fromEntries(p.monthly.top500.map(x=>[x.month,x.return]));
- const mspy=Object.fromEntries(p.benchmarks.SPY.monthly.map(x=>[x.month,x.return]));
- const mqqq=Object.fromEntries(p.benchmarks.QQQ.monthly.map(x=>[x.month,x.return]));
- const mdia=Object.fromEntries(p.benchmarks.DIA.monthly.map(x=>[x.month,x.return]));
+ const mspy=Object.fromEntries(bm.benchmarks.SPY.monthly.map(x=>[x.month,x.return]));
+ const mqqq=Object.fromEntries(bm.benchmarks.QQQ.monthly.map(x=>[x.month,x.return]));
+ const mdia=Object.fromEntries(bm.benchmarks.DIA.monthly.map(x=>[x.month,x.return]));
  const months=[...new Set([...Object.keys(m300),...Object.keys(m500),...Object.keys(mspy),...Object.keys(mqqq),...Object.keys(mdia)])].sort();
  $("#monthlyTable").innerHTML=table(months.map(m=>({month:m,a:m300[m],b:m500[m],spy:mspy[m],qqq:mqqq[m],dia:mdia[m]})),[
    ["Month",r=>r.month],["Top300",r=>pct(r.a)],["Top500",r=>pct(r.b)],["SPY",r=>pct(r.spy)],["QQQ",r=>pct(r.qqq)],["DIA",r=>pct(r.dia)]
  ]);
  $("#efficiencyTable").innerHTML=table([
-   {name:"Simple Core Top300",ret:d.simple_core.transport.top300.total_return,exposure:d.simple_core.transport.top300.avg_exposure,eff:p.efficiency.top300},
-   {name:"Simple Core Top500",ret:d.simple_core.transport.top500.total_return,exposure:d.simple_core.transport.top500.avg_exposure,eff:p.efficiency.top500},
-   {name:"SPY",ret:p.benchmarks.SPY.total_return,exposure:1,eff:p.efficiency.SPY},
-   {name:"QQQ",ret:p.benchmarks.QQQ.total_return,exposure:1,eff:p.efficiency.QQQ},
-   {name:"DIA",ret:p.benchmarks.DIA.total_return,exposure:1,eff:p.efficiency.DIA}
+   {name:"Simple Core Top300",ret:d.simple_core.transport.top300.total_return,exposure:d.simple_core.transport.top300.avg_exposure,eff:d.simple_core.transport.top300.total_return/d.simple_core.transport.top300.avg_exposure},
+   {name:"Simple Core Top500",ret:d.simple_core.transport.top500.total_return,exposure:d.simple_core.transport.top500.avg_exposure,eff:d.simple_core.transport.top500.total_return/d.simple_core.transport.top500.avg_exposure},
+   {name:"SPY",ret:bm.benchmarks.SPY.total_return,exposure:1,eff:bm.benchmarks.SPY.total_return},
+   {name:"QQQ",ret:bm.benchmarks.QQQ.total_return,exposure:1,eff:bm.benchmarks.QQQ.total_return},
+   {name:"DIA",ret:bm.benchmarks.DIA.total_return,exposure:1,eff:bm.benchmarks.DIA.total_return}
  ],[
    ["Series",r=>r.name],["Total return",r=>pct(r.ret)],["Avg exposure",r=>pct(r.exposure)],["Return / exposure",r=>pct(r.eff)]
  ]);
@@ -79,7 +79,7 @@ function table(rows,cols){
    ].map(x=>'<div class="metric"><span class="small">'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')+'</div>';
  $("#benchmarkNote").innerHTML='<b>Benchmark price returns</b><br>'+
    ['SPY','QQQ','DIA'].map(s=>s+' '+pct(p.benchmarks[s].total_return)+' · MDD '+pct(p.benchmarks[s].max_drawdown)).join('<br>')+
-   '<br><span class="small">2026-04-01 → 2026-10-05 · '+p.benchmark_source+'.</span>';
+   '<br><span class="small">2026-04-01 → 2026-10-05 · '+bm.source+'.</span>';
 
  $("#strategyTable").innerHTML=table(d.strategies,[
   ["ID",r=>r.id],["Strategy",r=>r.name],["Role",r=>r.role],["Status",r=>badge(r.status)],["Evidence",r=>r.evidence]

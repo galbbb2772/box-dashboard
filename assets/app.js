@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const [d,p]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/performance.json?ts="+Date.now()).then(r=>r.json())]);
+ const [d,p,bm]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -59,9 +59,7 @@ function table(rows,cols){
     ["Top500 Sharpe",num(d.simple_core.transport.top500.sharpe)],
     ["Top500 Exposure",pct(d.simple_core.transport.top500.avg_exposure)]
    ].map(x=>'<div class="metric"><span class="small">'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')+'</div>';
- $("#benchmarkNote").textContent=p.benchmark_status==="PENDING_EXTERNAL_FEED"
-   ?"SPY / QQQ / DIA comparison slot is reserved. External benchmark feed is temporarily unavailable; strategy curves are unaffected."
-   :"Benchmark series connected.";
+ $("#benchmarkNote").innerHTML='<b>Benchmark period returns</b><br>'+bm.benchmarks.map(x=>x.symbol+' '+pct(x.total_return)).join(' · ')+'<br><span class="small">'+bm.period.start+' → '+bm.period.end+' · '+bm.source+'. Daily benchmark curves are pending external-feed availability.</span>';
 
  $("#strategyTable").innerHTML=table(d.strategies,[
   ["ID",r=>r.id],["Strategy",r=>r.name],["Role",r=>r.role],["Status",r=>badge(r.status)],["Evidence",r=>r.evidence]

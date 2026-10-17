@@ -22,9 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate dashboard assets
+        run: |
+          node --check assets/app.js
+          python -m json.tool data/summary.json >/dev/null
+          python -m json.tool data/performance.json >/dev/null
+          test -f index.html
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

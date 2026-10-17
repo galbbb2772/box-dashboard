@@ -49,7 +49,8 @@ th{color:var(--muted);font-weight:700}
 .metricgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .metric{border:1px solid #26344b;border-radius:12px;padding:11px;background:#0b111b}
 .metric b{font-size:18px;display:block;margin-top:4px}
+.chart{height:420px}.smallchart{height:340px}
 .footer{margin:22px 0 8px;color:var(--muted);font-size:11px}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}.flow{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:820px){.two,.three{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:820px){.chart{height:360px}.two,.three{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.wrap{padding:14px}.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}.value{font-size:22px}.metricgrid{grid-template-columns:1fr}}

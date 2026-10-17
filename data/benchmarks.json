@@ -1,0 +1,32 @@
+{
+  "schema": "BOX-DASHBOARD-BENCHMARK-SNAPSHOT-V1",
+  "period": {
+    "start": "2026-04-01",
+    "end": "2026-10-05"
+  },
+  "source": "Massive.com adjusted daily bars",
+  "note": "Period return snapshot only; full benchmark daily series pending external-feed availability.",
+  "benchmarks": [
+    {
+      "symbol": "SPY",
+      "label": "S&P 500 proxy",
+      "start_close": 655.24,
+      "end_close": 774.83,
+      "total_return": 0.18251327757768143
+    },
+    {
+      "symbol": "QQQ",
+      "label": "Nasdaq-100 proxy",
+      "start_close": 584.31,
+      "end_close": 756.2,
+      "total_return": 0.29417603669285164
+    },
+    {
+      "symbol": "DIA",
+      "label": "Dow proxy",
+      "start_close": 465.48,
+      "end_close": 512.11,
+      "total_return": 0.10017616224112746
+    }
+  ]
+}

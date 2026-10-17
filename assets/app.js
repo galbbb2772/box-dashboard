@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const d=await fetch("data/summary.json?ts="+Date.now()).then(r=>r.json());
+ const [d,p]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/performance.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -26,6 +26,42 @@ function table(rows,cols){
   ["Holdout",d.counts.holdout,"Evidence packages"],
   ["Source",d.source_window,"Public-safe aggregate view"]
  ].map(x=>'<div class="card"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div><div class="small">'+x[2]+'</div></div>').join("");
+
+
+ const chartLayout={
+   paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",
+   font:{color:"#cad5e7"},margin:{l:52,r:18,t:20,b:44},
+   hovermode:"x unified",legend:{orientation:"h",y:1.08,x:0},
+   xaxis:{gridcolor:"#182235"},yaxis:{gridcolor:"#182235"}
+ };
+ Plotly.newPlot("equityChart",[
+   {x:p.series.top300.map(x=>x.date),y:p.series.top300.map(x=>x.equity),name:"Simple Core Top300",type:"scatter",mode:"lines"},
+   {x:p.series.top500.map(x=>x.date),y:p.series.top500.map(x=>x.equity),name:"Simple Core Top500",type:"scatter",mode:"lines"}
+ ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Equity multiple"}},{responsive:true,displaylogo:false});
+ Plotly.newPlot("drawdownChart",[
+   {x:p.drawdown.top300.map(x=>x.date),y:p.drawdown.top300.map(x=>x.drawdown*100),name:"Top300",type:"scatter",mode:"lines"},
+   {x:p.drawdown.top500.map(x=>x.date),y:p.drawdown.top500.map(x=>x.drawdown*100),name:"Top500",type:"scatter",mode:"lines"}
+ ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Drawdown %",ticksuffix:"%"}},{responsive:true,displaylogo:false});
+ const m300=Object.fromEntries(p.monthly.top300.map(x=>[x.month,x.return]));
+ const m500=Object.fromEntries(p.monthly.top500.map(x=>[x.month,x.return]));
+ const months=[...new Set([...Object.keys(m300),...Object.keys(m500)])].sort();
+ $("#monthlyTable").innerHTML=table(months.map(m=>({month:m,a:m300[m],b:m500[m]})),[
+   ["Month",r=>r.month],["Top300",r=>pct(r.a)],["Top500",r=>pct(r.b)]
+ ]);
+ $("#performanceSnapshot").innerHTML=
+   '<div class="metricgrid">'+[
+    ["Top300 Total",pct(d.simple_core.transport.top300.total_return)],
+    ["Top300 Max DD",pct(d.simple_core.transport.top300.max_drawdown)],
+    ["Top300 Sharpe",num(d.simple_core.transport.top300.sharpe)],
+    ["Top300 Exposure",pct(d.simple_core.transport.top300.avg_exposure)],
+    ["Top500 Total",pct(d.simple_core.transport.top500.total_return)],
+    ["Top500 Max DD",pct(d.simple_core.transport.top500.max_drawdown)],
+    ["Top500 Sharpe",num(d.simple_core.transport.top500.sharpe)],
+    ["Top500 Exposure",pct(d.simple_core.transport.top500.avg_exposure)]
+   ].map(x=>'<div class="metric"><span class="small">'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')+'</div>';
+ $("#benchmarkNote").textContent=p.benchmark_status==="PENDING_EXTERNAL_FEED"
+   ?"SPY / QQQ / DIA comparison slot is reserved. External benchmark feed is temporarily unavailable; strategy curves are unaffected."
+   :"Benchmark series connected.";
 
  $("#strategyTable").innerHTML=table(d.strategies,[
   ["ID",r=>r.id],["Strategy",r=>r.name],["Role",r=>r.role],["Status",r=>badge(r.status)],["Evidence",r=>r.evidence]

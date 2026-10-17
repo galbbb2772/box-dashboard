@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Box Strategy Lab · Dashboard</title>
+<meta name="description" content="Public dashboard for Box strategy research, validation, backtests, and Forward OOS tracking.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Box Strategy Lab</div>
+      <h1>Research Dashboard</h1>
+      <div class="subtitle">Public-safe view of Box strategy research, holdout evidence, Forward OOS progress, and promotion status. Core logic and raw research remain private.</div>
+    </div>
+    <div id="asof" class="badge">LOADING</div>
+  </div>
+
+  <div id="topCards" class="grid section"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="strategies">Strategies</button>
+    <button class="tab" data-tab="holdout">Holdout</button>
+    <button class="tab" data-tab="forward">Forward OOS</button>
+    <button class="tab" data-tab="research">Research</button>
+  </div>
+
+  <section id="overview" class="panel active">
+    <div class="card">
+      <div class="label">Promotion pipeline</div>
+      <div class="flow section">
+        <div class="step"><b>1 · Research</b><span class="small">Discover and reproduce the idea.</span></div>
+        <div class="step"><b>2 · Holdout</b><span class="small">Preregistered untouched validation.</span></div>
+        <div class="step"><b>3 · Freeze</b><span class="small">Parameters and logic become immutable.</span></div>
+        <div class="step"><b>4 · Forward OOS</b><span class="small">Only post-freeze evidence counts.</span></div>
+        <div class="step"><b>5 · Review</b><span class="small">Risk, execution and stability review.</span></div>
+        <div class="step"><b>6 · Production</b><span class="small">Formal promotion only after all gates.</span></div>
+      </div>
+    </div>
+    <div class="section two">
+      <div class="card">
+        <div class="label">Simple Core · transport holdout</div>
+        <div id="transportMetrics" class="section"></div>
+      </div>
+      <div class="card">
+        <div class="label">Universe comparison</div>
+        <div id="universeBars" class="section"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="strategies" class="panel">
+    <div class="card">
+      <div class="label">Strategy registry</div>
+      <div id="strategyTable" class="tablewrap section"></div>
+    </div>
+  </section>
+
+  <section id="holdout" class="panel">
+    <div class="three">
+      <div class="card">
+        <div class="label">Simple Core Transport</div>
+        <div class="value">POST-DISCOVERY</div>
+        <div class="small">2026-04-01 → 2026-10-05</div>
+        <div class="section note">Top300 and Top500 transport evidence is displayed at aggregate level only.</div>
+      </div>
+      <div class="card">
+        <div class="label">Gap Retest-Lift</div>
+        <div id="gapEvidence"></div>
+      </div>
+      <div class="card">
+        <div class="label">Gap Tail</div>
+        <div id="gapTail"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="forward" class="panel">
+    <div id="forwardCards" class="grid"></div>
+    <div class="section two">
+      <div class="card">
+        <div class="label">Simple Core trade gate</div>
+        <div class="progress"><span id="tradeProgress"></span></div>
+        <div class="small section">100 closed post-freeze trades required for promotion review.</div>
+      </div>
+      <div class="card">
+        <div class="label">Simple Core time gate</div>
+        <div class="progress"><span id="monthProgress"></span></div>
+        <div class="small section">12 calendar months of post-freeze observation required.</div>
+      </div>
+    </div>
+    <div class="section note">Forward status shown here is public reporting only. The authoritative ledgers and observers remain in the private research repository.</div>
+  </section>
+
+  <section id="research" class="panel">
+    <div class="card">
+      <div class="label">Research lines awaiting repository reconstruction</div>
+      <div id="researchTable" class="tablewrap section"></div>
+    </div>
+  </section>
+
+  <div class="footer">Public research dashboard · not investment advice · raw strategy logic and trade-level data are intentionally excluded.</div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

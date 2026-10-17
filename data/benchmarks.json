@@ -816,7 +816,9 @@
       ],
       "total_return": 0.18251327757768143,
       "max_drawdown": -0.044946482878470806,
-      "avg_exposure": 1
+      "avg_exposure": 1,
+      "annualized_sharpe_price_return": 2.724212777053883,
+      "calmar_like_period_return_over_mdd": 4.060679854999391
     },
     "QQQ": {
       "series": [
@@ -1627,7 +1629,9 @@
       ],
       "total_return": 0.29417603669285164,
       "max_drawdown": -0.11315267502948412,
-      "avg_exposure": 1
+      "avg_exposure": 1,
+      "annualized_sharpe_price_return": 2.483717205669317,
+      "calmar_like_period_return_over_mdd": 2.599815131336474
     },
     "DIA": {
       "series": [
@@ -2438,7 +2442,9 @@
       ],
       "total_return": 0.10017616224112746,
       "max_drawdown": -0.06311600744275159,
-      "avg_exposure": 1
+      "avg_exposure": 1,
+      "annualized_sharpe_price_return": 1.5906997376010357,
+      "calmar_like_period_return_over_mdd": 1.587175208000771
     }
   }
 }

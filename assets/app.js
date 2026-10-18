@@ -21,7 +21,7 @@ function table(rows,cols){
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
   ["Formalized",d.counts.formalized,"Migrated / registered lines"],
-  ["Reconstruct",d.counts.reconstruct,"Historical lines to restore"],
+  ["Research lines",d.counts.reconstruct,"Recovered / tracked lineages"],
   ["Forward",d.counts.forward,"Frozen challengers"],
   ["Holdout",d.counts.holdout,"Evidence packages"],
   ["Source",d.source_window,"Public-safe aggregate view"]
@@ -96,7 +96,7 @@ function table(rows,cols){
     ["Top500 Exposure",pct(d.simple_core.transport.top500.avg_exposure)]
    ].map(x=>'<div class="metric"><span class="small">'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')+'</div>';
  $("#benchmarkNote").innerHTML='<b>Benchmark price returns</b><br>'+
-   ['SPY','QQQ','DIA'].map(s=>s+' '+pct(p.benchmarks[s].total_return)+' · MDD '+pct(p.benchmarks[s].max_drawdown)).join('<br>')+
+   ['SPY','QQQ','DIA'].map(s=>s+' '+pct(bm.benchmarks[s].total_return)+' · MDD '+pct(bm.benchmarks[s].max_drawdown)).join('<br>')+
    '<br><span class="small">2026-04-01 → 2026-10-05 · '+bm.source+'.</span>';
 
  $("#strategyTable").innerHTML=table(d.strategies,[
@@ -135,6 +135,42 @@ function table(rows,cols){
  ].map(x=>'<div class="card"><div class="label">'+x[0]+'</div><div class="value" style="font-size:19px">'+x[1]+'</div><div class="small">'+x[2]+'</div></div>').join("");
  $("#tradeProgress").style.width=Math.min(100,f.simple_core.closed_trades/f.simple_core.trade_gate*100)+"%";
  $("#monthProgress").style.width=Math.min(100,f.simple_core.months_observed/f.simple_core.month_gate*100)+"%";
+
+ const rp=d.recovered_programs||{};
+ $("#recoveredPrograms").innerHTML=[
+   rp.geometry_rc1 ? {
+     title:"Geometry V3 RC1",
+     status:rp.geometry_rc1.status,
+     end:rp.geometry_rc1.historical_ending_multiple,
+     mdd:rp.geometry_rc1.historical_max_drawdown_pct,
+     pf:rp.geometry_rc1.historical_pf,
+     trades:rp.geometry_rc1.closed_trades,
+     rows:rp.geometry_rc1.true_prospective_rows_recovered,
+     replay:rp.geometry_rc1.independent_replay_recovered ? "Exact replay engine recovered" : "Replay engine pending"
+   } : null,
+   rp.cross_scale_v1 ? {
+     title:"Cross-Scale Episode V1",
+     status:rp.cross_scale_v1.status,
+     end:rp.cross_scale_v1.historical_ending_multiple,
+     mdd:rp.cross_scale_v1.historical_max_drawdown_pct,
+     pf:rp.cross_scale_v1.historical_pf,
+     trades:null,
+     rows:rp.cross_scale_v1.true_prospective_rows_recovered,
+     replay:"Append-only Forward guard recovered"
+   } : null
+ ].filter(Boolean).map(x=>
+   '<div class="card">'+
+   '<div class="label">'+x.title+'</div>'+
+   '<div class="section">'+badge(x.status)+'</div>'+
+   '<div class="metricgrid section">'+
+     '<div class="metric"><span class="small">Historical ending</span><b>'+num(x.end,3)+'×</b></div>'+
+     '<div class="metric"><span class="small">Historical Max DD</span><b>'+num(x.mdd,2)+'%</b></div>'+
+     '<div class="metric"><span class="small">Trade PF</span><b>'+num(x.pf,2)+'</b></div>'+
+     '<div class="metric"><span class="small">True prospective rows</span><b>'+x.rows+'</b></div>'+
+   '</div>'+
+   '<div class="small section">'+x.replay+(x.trades!=null?' · '+x.trades+' closed historical trades':'')+'</div>'+
+   '</div>'
+ ).join("");
 
  $("#researchTable").innerHTML=table(d.reconstruct,[
    ["ID",r=>r.id],["Research line",r=>r.name],["Status",r=>badge(r.status)],["Next action",r=>r.next]

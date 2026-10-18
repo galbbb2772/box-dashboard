@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-18T09:28:18.217819+00:00",
+  "generated_at_utc": "2026-10-18T12:59:27.999567+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -151,6 +151,9 @@
       "freeze_date": "2026-10-10",
       "prospective_start": "2026-10-12",
       "true_prospective_rows_recovered": 0,
+      "post_freeze_market_sessions_recovered": 5,
+      "latest_recovered_market_date": "2026-10-16",
+      "scanner_status": "CALIBRATION_PENDING",
       "historical_ending_multiple": 5.80821391702184,
       "historical_max_drawdown_pct": -9.83055579033505,
       "historical_pf": 3.3751784635574262,
@@ -162,6 +165,9 @@
       "freeze_date": "2026-10-10",
       "prospective_start": "2026-10-12",
       "true_prospective_rows_recovered": 0,
+      "post_freeze_market_sessions_recovered": 5,
+      "latest_recovered_market_date": "2026-10-16",
+      "scanner_status": "CALIBRATION_PENDING",
       "historical_ending_multiple": 3.110297,
       "historical_max_drawdown_pct": -18.68,
       "historical_pf": 2.401

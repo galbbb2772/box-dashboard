@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-18T09:28:16.507711+00:00",
+  "generated_at_utc": "2026-10-18T09:28:18.217819+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -145,18 +145,40 @@
       "closed_trades": 0
     }
   },
+  "recovered_programs": {
+    "geometry_rc1": {
+      "status": "FORWARD_PENDING",
+      "freeze_date": "2026-10-10",
+      "prospective_start": "2026-10-12",
+      "true_prospective_rows_recovered": 0,
+      "historical_ending_multiple": 5.80821391702184,
+      "historical_max_drawdown_pct": -9.83055579033505,
+      "historical_pf": 3.3751784635574262,
+      "closed_trades": 131,
+      "independent_replay_recovered": true
+    },
+    "cross_scale_v1": {
+      "status": "FORWARD_PENDING",
+      "freeze_date": "2026-10-10",
+      "prospective_start": "2026-10-12",
+      "true_prospective_rows_recovered": 0,
+      "historical_ending_multiple": 3.110297,
+      "historical_max_drawdown_pct": -18.68,
+      "historical_pf": 2.401
+    }
+  },
   "reconstruct": [
     {
       "id": "BOX-X1",
       "name": "Large Box / Small Box",
       "status": "RECOVERED",
-      "next": "Restore executable historical engine / ledgers"
+      "next": "Engine definitions recovered; preserve without retuning"
     },
     {
       "id": "BOX-X2",
       "name": "Wall A / B / C",
       "status": "RECOVERED",
-      "next": "Keep Wall C Shadow; restore remaining lifecycle artifacts"
+      "next": "Keep Wall C Shadow; A2/B2 evidence recovered"
     },
     {
       "id": "BOX-X3",
@@ -167,20 +189,20 @@
     {
       "id": "BOX-X4",
       "name": "A+B Core",
-      "status": "RECOVERED_FROZEN_SPEC",
-      "next": "Verify whether prospective ledger actually ran"
+      "status": "FORWARD_PENDING",
+      "next": "No verified post-2026-10-12 prospective rows"
     },
     {
       "id": "BOX-X5",
-      "name": "Geometry / Geometry V3 / RC1",
-      "status": "RESEARCH_FROZEN",
-      "next": "Recover execution code and validate real-open fills"
+      "name": "Geometry V3 / RC1",
+      "status": "FORWARD_PENDING",
+      "next": "Exact replay engine recovered; start true post-freeze ledger"
     },
     {
       "id": "BOX-X6",
       "name": "Cross-Scale / Nested Box",
-      "status": "RECOVERED_FROZEN_SPEC",
-      "next": "Verify post-freeze Forward OOS evidence"
+      "status": "FORWARD_PENDING",
+      "next": "Frozen ledger guard recovered; current prospective rows = 0"
     }
   ]
 }

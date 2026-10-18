@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Box Strategy Lab · Dashboard</title>
 <meta name="description" content="Public dashboard for Box strategy research, validation, backtests, and Forward OOS tracking.">
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>\n<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <div class="wrap">
@@ -21,7 +22,8 @@
   <div id="topCards" class="grid section"></div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="overview">Overview</button>\n    <button class="tab" data-tab="performance">Performance</button>
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="performance">Performance</button>
     <button class="tab" data-tab="strategies">Strategies</button>
     <button class="tab" data-tab="holdout">Holdout</button>
     <button class="tab" data-tab="forward">Forward OOS</button>
@@ -134,7 +136,9 @@
   </section>
 
   <section id="research" class="panel">
-    <div class="card">
+    <div id="recoveredPrograms" class="two"></div>
+    <div class="section note">A recovered historical backtest is not Forward OOS. Geometry V3 and Cross-Scale were frozen on 2026-10-10 with true prospective start 2026-10-12; no verified post-freeze rows are currently recovered.</div>
+    <div class="section card">
       <div class="label">Recovered historical research lines</div>
       <div id="researchTable" class="tablewrap section"></div>
     </div>

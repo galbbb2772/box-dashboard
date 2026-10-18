@@ -5,7 +5,7 @@ const num=(v,d=2)=>v==null?"—":Number(v).toFixed(d);
 function badge(s){
   const x=String(s||"").toUpperCase();
   let c="info";
-  if(x.includes("PASS")||x==="FROZEN"||x==="HOLDOUT")c="good";
+  if(x.includes("PASS")||x.includes("FROZEN")||x==="HOLDOUT"||x==="RECOVERED")c="good";
   if(x.includes("PENDING")||x.includes("AWAIT")||x==="RESEARCH"||x==="RECONSTRUCT"||x==="SHADOW")c="warn";
   if(x.includes("FAIL")||x.includes("REJECT")||x.includes("DO_NOT"))c="bad";
   return '<span class="status '+c+'">'+s+'</span>';

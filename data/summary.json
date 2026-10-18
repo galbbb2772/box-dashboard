@@ -1,13 +1,14 @@
 {
-  "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V1",
-  "as_of": "2026-10-17",
-  "source_window": "through 2026-10-05",
+  "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
+  "generated_at_utc": "2026-10-18T09:10:52.753442+00:00",
+  "as_of": "2026-10-05",
+  "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
   "counts": {
     "formalized": 10,
     "reconstruct": 6,
-    "forward": 2,
-    "holdout": 4
+    "forward": 1,
+    "holdout": 3
   },
   "strategies": [
     {
@@ -42,8 +43,8 @@
       "id": "BOX-C2",
       "name": "Gap Retest-Lift V1",
       "role": "Frozen challenger",
-      "status": "FORWARD_PENDING",
-      "evidence": "8/8 primary holdout checks passed"
+      "status": "FORWARD_OOS_PENDING",
+      "evidence": "Preregistered holdout + Forward observer"
     },
     {
       "id": "BOX-H2",
@@ -57,14 +58,14 @@
       "name": "Gap Tail Factor Holdout V6",
       "role": "Holdout evidence",
       "status": "HOLDOUT",
-      "evidence": "4/8 checks passed"
+      "evidence": "Factor holdout"
     },
     {
       "id": "BOX-H4",
       "name": "Gap Tail Holdout V1",
       "role": "Legacy holdout",
       "status": "LEGACY",
-      "evidence": "Do not promote global exclusion"
+      "evidence": "Global exclusion not promoted"
     },
     {
       "id": "BOX-S1",
@@ -83,16 +84,17 @@
   ],
   "simple_core": {
     "transport": {
-      "label": "POST_DISCOVERY_TRANSPORT_HOLDOUT",
-      "oos_start": "2026-04-01",
-      "oos_end": "2026-10-05",
       "top300": {
         "total_return": 0.10146780005661071,
         "max_drawdown": -0.05354093067633159,
         "sharpe": 2.0233645896812655,
         "avg_exposure": 0.2587596000822858,
         "completed_trades": 53,
-        "profit_factor": 1.5192894502799503
+        "open_at_end": 1,
+        "profit_factor": 1.5192894502799503,
+        "mean_trade": 0.007475799268463755,
+        "win_rate": 0.24528301886792453,
+        "candidate_n": 80
       },
       "top500": {
         "total_return": 0.054451934404939006,
@@ -100,26 +102,36 @@
         "sharpe": 0.9114218712334348,
         "avg_exposure": 0.3897178089598021,
         "completed_trades": 89,
-        "profit_factor": 1.1216612866799438
+        "open_at_end": 2,
+        "profit_factor": 1.1216612866799438,
+        "mean_trade": 0.0018844454438074346,
+        "win_rate": 0.21348314606741572,
+        "candidate_n": 143
       }
-    }
+    },
+    "evidence_label": "POST_DISCOVERY_TRANSPORT_HOLDOUT",
+    "oos_start": "2026-04-01",
+    "oos_end": "2026-10-05"
   },
   "gap_retest": {
     "primary_passed": 8,
     "primary_total": 8,
+    "top500_passed": 4,
+    "top500_total": 4,
     "all_passed": true
   },
   "gap_tail": {
     "passed_checks": 4,
     "total_checks": 8,
-    "decision": "DO_NOT_PROMOTE_GLOBAL_EXCLUSION",
-    "public_note": "Holdout evidence was mixed across universes, so the global hard-exclusion idea was not promoted."
+    "decision": "DO_NOT_PROMOTE_GLOBAL_GAP_TAIL_EXCLUSION",
+    "public_note": "Holdout evidence was mixed across universes; the global hard-exclusion rule was not promoted."
   },
   "forward": {
     "simple_core": {
       "status": "AWAITING_ANCHOR",
       "freeze_date": "2026-10-07",
       "first_signal_date": "2026-10-08",
+      "latest_cache_date": "2026-10-05",
       "closed_trades": 0,
       "months_observed": 0,
       "trade_gate": 100,
@@ -129,6 +141,7 @@
       "status": "FORWARD_OOS_PENDING",
       "freeze_date": "2026-10-07",
       "first_signal_date": "2026-10-08",
+      "latest_market_date": "2026-10-05",
       "closed_trades": 0
     }
   },

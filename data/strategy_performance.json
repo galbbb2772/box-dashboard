@@ -1,11 +1,12 @@
 {
-  "schema": "BOX-DASHBOARD-STRATEGY-PERFORMANCE-V1",
+  "schema": "BOX-DASHBOARD-STRATEGY-PERFORMANCE-V2",
+  "generated_at_utc": "2026-10-18T09:10:52.753442+00:00",
   "as_of": "2026-10-05",
   "series": {
     "top300": [
       {
         "date": "2026-04-01",
-        "equity": 1
+        "equity": 1.0
       },
       {
         "date": "2026-04-02",
@@ -523,7 +524,7 @@
     "top500": [
       {
         "date": "2026-04-01",
-        "equity": 1
+        "equity": 1.0
       },
       {
         "date": "2026-04-02",
@@ -1043,15 +1044,15 @@
     "top300": [
       {
         "date": "2026-04-01",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-02",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-06",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-07",
@@ -1059,7 +1060,7 @@
       },
       {
         "date": "2026-04-08",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-09",
@@ -1075,55 +1076,55 @@
       },
       {
         "date": "2026-04-14",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-15",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-16",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-17",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-20",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-21",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-22",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-23",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-24",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-27",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-28",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-29",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-30",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-01",
@@ -1139,15 +1140,15 @@
       },
       {
         "date": "2026-05-06",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-07",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-08",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-11",
@@ -1187,11 +1188,11 @@
       },
       {
         "date": "2026-05-22",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-26",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-27",
@@ -1247,7 +1248,7 @@
       },
       {
         "date": "2026-06-15",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-06-16",
@@ -1279,51 +1280,51 @@
       },
       {
         "date": "2026-06-26",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-06-29",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-06-30",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-01",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-02",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-06",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-07",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-08",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-09",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-10",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-13",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-14",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-15",
@@ -1343,11 +1344,11 @@
       },
       {
         "date": "2026-07-21",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-22",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-07-23",
@@ -1547,29 +1548,29 @@
       },
       {
         "date": "2026-10-01",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-10-02",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-10-05",
-        "drawdown": 0
+        "drawdown": 0.0
       }
     ],
     "top500": [
       {
         "date": "2026-04-01",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-02",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-06",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-07",
@@ -1577,7 +1578,7 @@
       },
       {
         "date": "2026-04-08",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-09",
@@ -1593,31 +1594,31 @@
       },
       {
         "date": "2026-04-14",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-15",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-16",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-17",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-20",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-21",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-22",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-04-23",
@@ -1641,7 +1642,7 @@
       },
       {
         "date": "2026-04-30",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-01",
@@ -1657,15 +1658,15 @@
       },
       {
         "date": "2026-05-06",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-07",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-08",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-11",
@@ -1705,11 +1706,11 @@
       },
       {
         "date": "2026-05-22",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-26",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-05-27",
@@ -2049,7 +2050,7 @@
       },
       {
         "date": "2026-09-25",
-        "drawdown": 0
+        "drawdown": 0.0
       },
       {
         "date": "2026-09-28",

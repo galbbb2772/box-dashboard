@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-18T09:16:54.468455+00:00",
+  "generated_at_utc": "2026-10-18T09:18:05.670361+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -149,38 +149,38 @@
     {
       "id": "BOX-X1",
       "name": "Large Box / Small Box",
-      "status": "RECONSTRUCT",
-      "next": "Recover formal historical artifacts"
+      "status": "RECOVERED",
+      "next": "Restore executable historical engine / ledgers"
     },
     {
       "id": "BOX-X2",
       "name": "Wall A / B / C",
-      "status": "RECONSTRUCT",
-      "next": "Rebuild lifecycle research record"
+      "status": "RECOVERED",
+      "next": "Keep Wall C Shadow; restore remaining lifecycle artifacts"
     },
     {
       "id": "BOX-X3",
       "name": "Guidance 60/70/80/90",
-      "status": "RECONSTRUCT",
-      "next": "Restore arrival-rate studies"
+      "status": "RECOVERED",
+      "next": "Preserve 75% Capture Proof; no retuning"
     },
     {
       "id": "BOX-X4",
       "name": "A+B Core",
-      "status": "RECONSTRUCT",
-      "next": "Recover frozen definition and evidence"
+      "status": "RECOVERED_FROZEN_SPEC",
+      "next": "Verify whether prospective ledger actually ran"
     },
     {
       "id": "BOX-X5",
       "name": "Geometry / Geometry V3 / RC1",
-      "status": "RECONSTRUCT",
-      "next": "Formalize spec before new holdout"
+      "status": "RESEARCH_FROZEN",
+      "next": "Recover execution code and validate real-open fills"
     },
     {
       "id": "BOX-X6",
       "name": "Cross-Scale / Nested Box",
-      "status": "RECONSTRUCT",
-      "next": "Restore parent-child box studies"
+      "status": "RECOVERED_FROZEN_SPEC",
+      "next": "Verify post-freeze Forward OOS evidence"
     }
   ]
 }

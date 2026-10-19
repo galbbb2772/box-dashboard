@@ -1,13 +1,13 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-19T12:15:38.670987+00:00",
-  "as_of": "2026-10-05",
-  "source_window": "strategy evidence through 2026-10-05",
+  "generated_at_utc": "2026-10-19T14:32:00Z",
+  "as_of": "2026-10-16",
+  "source_window": "Frozen V4-era comparison through 2026-10-16; pure Robust Stack prospective boundary 2026-10-19",
   "production_strategy": null,
   "counts": {
     "formalized": 10,
     "reconstruct": 6,
-    "forward": 1,
+    "forward": 6,
     "holdout": 3
   },
   "strategies": [
@@ -143,6 +143,15 @@
       "first_signal_date": "2026-10-08",
       "latest_market_date": "2026-10-05",
       "closed_trades": 0
+    },
+    "robust_stack": {
+      "status": "FORWARD_RUNNING",
+      "frozen_v4_freeze_date": "2026-09-19",
+      "first_display_market_session": "2026-09-21",
+      "pure_prospective_signal_boundary": "2026-10-19",
+      "earliest_pure_prospective_entry": "2026-10-20",
+      "lanes": 6,
+      "latest_display_date": "2026-10-16"
     }
   },
   "recovered_programs": {

@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-19T12:00:55.693400+00:00",
+  "generated_at_utc": "2026-10-19T12:15:38.670987+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -147,10 +147,14 @@
   },
   "recovered_programs": {
     "geometry_rc1": {
-      "status": "FORWARD_PENDING",
+      "status": "FORWARD_OBSERVING",
       "freeze_date": "2026-10-10",
       "prospective_start": "2026-10-12",
-      "true_prospective_rows_recovered": 0,
+      "prospective_scanner_observation_days": 1,
+      "latest_prospective_scan_date": "2026-10-12",
+      "latest_scan_new_signals": 0,
+      "true_prospective_signal_rows": 0,
+      "true_prospective_trade_rows": 0,
       "post_freeze_market_sessions_recovered": 5,
       "latest_recovered_market_date": "2026-10-16",
       "scanner_status": "EXACT_IDENTITY_RECOVERED_LIVE_READY",

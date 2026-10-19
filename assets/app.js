@@ -149,6 +149,7 @@ function table(rows,cols){
      market:rp.geometry_rc1.post_freeze_market_sessions_recovered||0,
      latest:rp.geometry_rc1.latest_recovered_market_date||"—",
      scanner:rp.geometry_rc1.scanner_status||"—",
+     calibration:rp.geometry_rc1.scanner_calibration||"—",
      replay:rp.geometry_rc1.independent_replay_recovered ? "Exact replay engine recovered" : "Replay engine pending"
    } : null,
    rp.cross_scale_v1 ? {
@@ -162,6 +163,7 @@ function table(rows,cols){
      market:rp.cross_scale_v1.post_freeze_market_sessions_recovered||0,
      latest:rp.cross_scale_v1.latest_recovered_market_date||"—",
      scanner:rp.cross_scale_v1.scanner_status||"—",
+     calibration:rp.cross_scale_v1.scanner_calibration||"—",
      replay:"Append-only Forward guard recovered"
    } : null
  ].filter(Boolean).map(x=>
@@ -176,7 +178,7 @@ function table(rows,cols){
      '<div class="metric"><span class="small">Post-freeze market sessions</span><b>'+x.market+'</b></div>'+
    '</div>'+
    '<div class="small section">'+x.replay+(x.trades!=null?' · '+x.trades+' closed historical trades':'')+
-   '<br>Scanner: '+x.scanner+' · market through '+x.latest+'</div>'+
+   '<br>Scanner: '+x.scanner+'<br>Calibration: '+x.calibration+'<br>Market through '+x.latest+'</div>'+
    '</div>'
  ).join("");
 

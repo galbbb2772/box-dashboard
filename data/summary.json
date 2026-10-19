@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-19T05:29:37.843464+00:00",
+  "generated_at_utc": "2026-10-19T10:11:25.455173+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -154,8 +154,9 @@
       "post_freeze_market_sessions_recovered": 5,
       "latest_recovered_market_date": "2026-10-16",
       "scanner_status": "EXACT_IDENTITY_RECOVERED_LIVE_READY",
-      "scanner_calibration": "145/145 RC1 Core; 142/142 exact-current",
+      "scanner_calibration": "145/145 RC1 Core; 142/142 exact-current; 12/12 supplemental 2026 calibration",
       "reconstructed_oos_candidates": 0,
+      "reconstructed_pending_open_candidates": 1,
       "official_live_rows": 0,
       "operational_live_signal_start": "2026-10-19",
       "historical_ending_multiple": 5.80821391702184,
@@ -211,7 +212,7 @@
       "id": "BOX-X5",
       "name": "Geometry V3 / RC1",
       "status": "FORWARD_PENDING",
-      "next": "Exact scanner recovered 145/145; run point-in-time post-freeze observation"
+      "next": "Exact scanner + supplemental calibration recovered; official live observation starts 2026-10-19 close"
     },
     {
       "id": "BOX-X6",

@@ -28,6 +28,7 @@ jobs:
           python -m json.tool data/summary.json >/dev/null
           python -m json.tool data/strategy_performance.json >/dev/null
           python -m json.tool data/benchmarks.json >/dev/null
+          python -m json.tool data/robust_forward.json >/dev/null
           test -f index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const [d,p,bm,rf]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json())]);
+ const [d,p,bm,rf,fv4]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json()),fetch("data/frozen_v4_actual_forward.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -134,6 +134,28 @@ function table(rows,cols){
    ["Pure prospective",rf.pure_prospective_signal_boundary,"No later-lane backdating"]
  ].map(x=>'<div class="card"><div class="label">'+x[0]+'</div><div class="value" style="font-size:19px">'+x[1]+'</div><div class="small">'+x[2]+'</div></div>').join("");
 
+ const frozenActualTraces=fv4.account_lanes.map(x=>({
+   x:x.curve.date,
+   y:x.curve.equity,
+   name:x.id,
+   type:"scatter",
+   mode:"lines"
+ }));
+ Plotly.newPlot("frozenActualChart",frozenActualTraces,{
+   ...chartLayout,
+   yaxis:{...chartLayout.yaxis,title:"Equity (actual saved ledger)",tickformat:".3f"},
+   xaxis:{...chartLayout.xaxis,title:"U.S. market date"}
+ },{responsive:true,displaylogo:false});
+
+ $("#frozenActualTable").innerHTML=table(fv4.account_lanes,[
+   ["Lane",r=>r.id],
+   ["Return",r=>Number(r.return_pct).toFixed(2)+"%"],
+   ["Max DD",r=>Number(r.max_drawdown_pct).toFixed(2)+"%"],
+   ["Closed",r=>r.closed],
+   ["Open",r=>r.open],
+   ["Latest",r=>r.latest_date]
+ ]);
+
  const robustTraces=rf.lanes.map(x=>({
    x:x.series.map(z=>z.date),
    y:x.series.map(z=>z.equity),
@@ -165,7 +187,8 @@ function table(rows,cols){
    ["Status",r=>badge(r.status)]
  ]);
  $("#robustForwardBoundaryNote").innerHTML=
-   '<b>Frozen V4 origin:</b> '+rf.frozen_v4_freeze_date+
+   '<b>Important:</b> these FWD-01..FWD-06 lines are later Geometry/Capital/A2R/Sync-High systems replayed over Frozen-V4-era dates. They are <b>not</b> the original Frozen V4 live account ledger above.<br>'+
+   '<b>Replay origin:</b> '+rf.frozen_v4_freeze_date+
    ' · first market session '+rf.first_post_freeze_market_session+
    ' · reconstructed through '+rf.v4_era_replay_through+'.<br>'+
    '<span class="small">'+rf.display_policy+'</span>';

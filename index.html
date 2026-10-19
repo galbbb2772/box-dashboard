@@ -120,16 +120,25 @@
 
   <section id="forward" class="panel">
     <div id="forwardCards" class="grid"></div>
+    <div class="section card">
+      <div class="label">Robust Stack · Frozen V4-era normalized equity</div>
+      <div id="robustForwardChart" class="chart"></div>
+      <div id="robustForwardBoundaryNote" class="note section"></div>
+    </div>
+    <div class="section card">
+      <div class="label">Robust Stack · lane comparison</div>
+      <div id="robustForwardTable" class="tablewrap section"></div>
+    </div>
     <div class="section two">
       <div class="card">
-        <div class="label">Simple Core trade gate</div>
-        <div class="progress"><span id="tradeProgress"></span></div>
-        <div class="small section">100 closed post-freeze trades required for promotion review.</div>
+        <div class="label">Pure prospective boundary</div>
+        <div id="prospectiveBoundary" class="value" style="font-size:19px">—</div>
+        <div class="small section">Later-developed lanes are not relabeled as pure OOS before their true prospective boundary.</div>
       </div>
       <div class="card">
-        <div class="label">Simple Core time gate</div>
-        <div class="progress"><span id="monthProgress"></span></div>
-        <div class="small section">12 calendar months of post-freeze observation required.</div>
+        <div class="label">Frozen V4 display origin</div>
+        <div id="v4DisplayStart" class="value" style="font-size:19px">—</div>
+        <div class="small section">The chart starts at the first market session after the Frozen V4 freeze.</div>
       </div>
     </div>
     <div class="section note">Forward status shown here is public reporting only. The authoritative ledgers and observers remain in the private research repository.</div>

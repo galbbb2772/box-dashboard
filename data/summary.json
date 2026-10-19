@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-18T14:45:16.539037+00:00",
+  "generated_at_utc": "2026-10-19T05:13:54.842149+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -153,7 +153,8 @@
       "true_prospective_rows_recovered": 0,
       "post_freeze_market_sessions_recovered": 5,
       "latest_recovered_market_date": "2026-10-16",
-      "scanner_status": "CALIBRATION_PENDING",
+      "scanner_status": "EXACT_IDENTITY_RECOVERED",
+      "scanner_calibration": "145/145 RC1 Core; 142/142 exact-current",
       "historical_ending_multiple": 5.80821391702184,
       "historical_max_drawdown_pct": -9.83055579033505,
       "historical_pf": 3.3751784635574262,
@@ -167,7 +168,8 @@
       "true_prospective_rows_recovered": 0,
       "post_freeze_market_sessions_recovered": 5,
       "latest_recovered_market_date": "2026-10-16",
-      "scanner_status": "CALIBRATION_PENDING",
+      "scanner_status": "EXACT_MOTHER_LAYERS_RECOVERED",
+      "scanner_calibration": "Wall A2 111/111; Wall B2 40/40",
       "historical_ending_multiple": 3.110297,
       "historical_max_drawdown_pct": -18.68,
       "historical_pf": 2.401
@@ -196,13 +198,13 @@
       "id": "BOX-X4",
       "name": "A+B Core",
       "status": "FORWARD_PENDING",
-      "next": "No verified post-2026-10-12 prospective rows"
+      "next": "A2/B2 mother scanners recovered exactly; no verified post-freeze rows yet"
     },
     {
       "id": "BOX-X5",
       "name": "Geometry V3 / RC1",
       "status": "FORWARD_PENDING",
-      "next": "Exact replay engine recovered; start true post-freeze ledger"
+      "next": "Exact scanner recovered 145/145; run point-in-time post-freeze observation"
     },
     {
       "id": "BOX-X6",

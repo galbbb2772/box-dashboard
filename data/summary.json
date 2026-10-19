@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-19T10:11:25.455173+00:00",
+  "generated_at_utc": "2026-10-19T10:13:27.979283+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -175,7 +175,7 @@
       "scanner_status": "EXACT_MOTHER_LAYERS_RECOVERED_LIVE_READY",
       "scanner_calibration": "Wall A2 111/111; Wall B2 40/40",
       "reconstructed_oos_candidates": 1,
-      "reconstructed_oos_note": "NOK B2 on 2026-10-13; reconstructed only, not backfilled",
+      "reconstructed_oos_note": "One reconstructed B2 candidate in the recovered post-freeze window; not backfilled",
       "official_live_rows": 0,
       "operational_live_signal_start": "2026-10-19",
       "historical_ending_multiple": 3.110297,

@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const [d,p,bm]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json())]);
+ const [d,p,bm,rf]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -128,13 +128,49 @@ function table(rows,cols){
 
  const f=d.forward;
  $("#forwardCards").innerHTML=[
-   ["Simple Core",f.simple_core.status,f.simple_core.closed_trades+"/"+f.simple_core.trade_gate+" trades"],
-   ["Gap Retest-Lift",f.gap_retest.status,f.gap_retest.closed_trades+" closed trades"],
-   ["First eligible",f.simple_core.first_signal_date,"Post-freeze only"],
-   ["Promotion gate",f.simple_core.month_gate+" months","AND "+f.simple_core.trade_gate+" closed trades"]
+   ["Frozen V4 freeze",rf.frozen_v4_freeze_date,"U.S. exchange-date convention"],
+   ["Display starts",rf.first_post_freeze_market_session,"First market session after freeze"],
+   ["Robust lanes",rf.lanes.length,"FWD-01 through FWD-06"],
+   ["Pure prospective",rf.pure_prospective_signal_boundary,"No later-lane backdating"]
  ].map(x=>'<div class="card"><div class="label">'+x[0]+'</div><div class="value" style="font-size:19px">'+x[1]+'</div><div class="small">'+x[2]+'</div></div>').join("");
- $("#tradeProgress").style.width=Math.min(100,f.simple_core.closed_trades/f.simple_core.trade_gate*100)+"%";
- $("#monthProgress").style.width=Math.min(100,f.simple_core.months_observed/f.simple_core.month_gate*100)+"%";
+
+ const robustTraces=rf.lanes.map(x=>({
+   x:x.series.map(z=>z.date),
+   y:x.series.map(z=>z.equity),
+   name:x.id+" · "+x.name,
+   type:"scatter",
+   mode:"lines"
+ }));
+ Plotly.newPlot("robustForwardChart",robustTraces,{
+   ...chartLayout,
+   yaxis:{...chartLayout.yaxis,title:"Normalized equity",tickformat:".3f"},
+   xaxis:{...chartLayout.xaxis,title:"U.S. market date"},
+   shapes:[{
+     type:"line",x0:rf.pure_prospective_signal_boundary,x1:rf.pure_prospective_signal_boundary,
+     y0:0,y1:1,yref:"paper",line:{dash:"dot",width:1}
+   }],
+   annotations:[{
+     x:rf.pure_prospective_signal_boundary,y:1,yref:"paper",showarrow:false,
+     text:"Pure prospective →",xanchor:"left",yanchor:"bottom",font:{size:11}
+   }]
+ },{responsive:true,displaylogo:false});
+
+ $("#robustForwardTable").innerHTML=table(rf.lanes,[
+   ["Lane",r=>r.id],
+   ["System",r=>r.name],
+   ["V4-era return",r=>pct(r.era_replay_return)],
+   ["V4-era Max DD",r=>pct(r.era_replay_max_drawdown)],
+   ["Closed trades",r=>r.era_replay_closed_trades],
+   ["Pure prospective rows",r=>r.pure_prospective_rows],
+   ["Status",r=>badge(r.status)]
+ ]);
+ $("#robustForwardBoundaryNote").innerHTML=
+   '<b>Frozen V4 origin:</b> '+rf.frozen_v4_freeze_date+
+   ' · first market session '+rf.first_post_freeze_market_session+
+   ' · reconstructed through '+rf.v4_era_replay_through+'.<br>'+
+   '<span class="small">'+rf.display_policy+'</span>';
+ $("#prospectiveBoundary").textContent=rf.pure_prospective_signal_boundary;
+ $("#v4DisplayStart").textContent=rf.first_post_freeze_market_session;
 
  const rp=d.recovered_programs||{};
  $("#recoveredPrograms").innerHTML=[

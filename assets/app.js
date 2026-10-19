@@ -146,6 +146,9 @@ function table(rows,cols){
      pf:rp.geometry_rc1.historical_pf,
      trades:rp.geometry_rc1.closed_trades,
      rows:rp.geometry_rc1.true_prospective_rows_recovered,
+     reconstructed:rp.geometry_rc1.reconstructed_oos_candidates||0,
+     official:rp.geometry_rc1.official_live_rows||0,
+     liveStart:rp.geometry_rc1.operational_live_signal_start||"—",
      market:rp.geometry_rc1.post_freeze_market_sessions_recovered||0,
      latest:rp.geometry_rc1.latest_recovered_market_date||"—",
      scanner:rp.geometry_rc1.scanner_status||"—",
@@ -160,6 +163,9 @@ function table(rows,cols){
      pf:rp.cross_scale_v1.historical_pf,
      trades:null,
      rows:rp.cross_scale_v1.true_prospective_rows_recovered,
+     reconstructed:rp.cross_scale_v1.reconstructed_oos_candidates||0,
+     official:rp.cross_scale_v1.official_live_rows||0,
+     liveStart:rp.cross_scale_v1.operational_live_signal_start||"—",
      market:rp.cross_scale_v1.post_freeze_market_sessions_recovered||0,
      latest:rp.cross_scale_v1.latest_recovered_market_date||"—",
      scanner:rp.cross_scale_v1.scanner_status||"—",
@@ -174,11 +180,12 @@ function table(rows,cols){
      '<div class="metric"><span class="small">Historical ending</span><b>'+num(x.end,3)+'×</b></div>'+
      '<div class="metric"><span class="small">Historical Max DD</span><b>'+num(x.mdd,2)+'%</b></div>'+
      '<div class="metric"><span class="small">Trade PF</span><b>'+num(x.pf,2)+'</b></div>'+
-     '<div class="metric"><span class="small">True prospective rows</span><b>'+x.rows+'</b></div>'+
+     '<div class="metric"><span class="small">Official live rows</span><b>'+x.official+'</b></div>'+
+     '<div class="metric"><span class="small">Reconstructed OOS</span><b>'+x.reconstructed+'</b></div>'+
      '<div class="metric"><span class="small">Post-freeze market sessions</span><b>'+x.market+'</b></div>'+
    '</div>'+
    '<div class="small section">'+x.replay+(x.trades!=null?' · '+x.trades+' closed historical trades':'')+
-   '<br>Scanner: '+x.scanner+'<br>Calibration: '+x.calibration+'<br>Market through '+x.latest+'</div>'+
+   '<br>Scanner: '+x.scanner+'<br>Calibration: '+x.calibration+'<br>Live signal start: '+x.liveStart+' · market through '+x.latest+'</div>'+
    '</div>'
  ).join("");
 

@@ -57,38 +57,40 @@
 
   <section id="performance" class="panel">
     <div class="card">
-      <div class="label">Simple Core · normalized equity</div>
-      <div id="equityChart" class="chart"></div>
+      <div class="chart-head">
+        <div>
+          <div class="label">BOX Robust Stack · Prospective Forward OOS equity · 6 lanes</div>
+          <div class="small section">All six frozen cumulative lanes are shown together. Tap a legend item to isolate/hide a lane.</div>
+        </div>
+        <div class="chart-controls" aria-label="Chart range controls">
+          <button type="button" class="rangebtn" data-range="1M">1M</button>
+          <button type="button" class="rangebtn" data-range="3M">3M</button>
+          <button type="button" class="rangebtn active" data-range="ALL">ALL</button>
+          <button type="button" class="rangebtn" id="resetForwardCharts">↺ 重置</button>
+        </div>
+      </div>
+      <div id="equityChart" class="chart interactive-chart"></div>
+      <div class="small chart-help">手机：单指左右拖动 · 双指缩放。桌面：拖动平移 · 滚轮/触控板缩放。最少保留 10 个数据点，最大范围锁定为完整 Forward 区间。</div>
     </div>
     <div class="section two">
       <div class="card">
-        <div class="label">Drawdown</div>
-        <div id="drawdownChart" class="chart smallchart"></div>
+        <div class="label">Drawdown · synchronized with equity</div>
+        <div id="drawdownChart" class="chart smallchart interactive-chart"></div>
       </div>
       <div class="card">
-        <div class="label">Performance snapshot</div>
+        <div class="label">Prospective Forward snapshot</div>
         <div id="performanceSnapshot" class="section"></div>
         <div id="benchmarkNote" class="note section"></div>
       </div>
     </div>
-    <div class="section two">
-      <div class="card">
-        <div class="label">$100,000 normalized account</div>
-        <div id="capitalChart" class="chart smallchart"></div>
-      </div>
-      <div class="card">
-        <div class="label">Period comparison</div>
-        <div id="periodComparison" class="tablewrap section"></div>
-      </div>
+    <div class="section card">
+      <div class="label">$100,000 normalized account · 6 lanes</div>
+      <div id="capitalChart" class="chart smallchart interactive-chart"></div>
     </div>
     <div class="section card">
-      <div class="label">Monthly returns · strategy vs benchmarks</div>
-      <div id="monthlyTable" class="tablewrap section"></div>
-    </div>
-    <div class="section card">
-      <div class="label">Capital-efficiency proxy</div>
-      <div id="efficiencyTable" class="tablewrap section"></div>
-      <div class="note section">Defined as total return ÷ average exposure. This is a descriptive utilization proxy, not a leverage-adjusted or risk-adjusted performance measure.</div>
+      <div class="label">BOX research-forward reference · 2026-04-01 → 2026-10-09</div>
+      <div id="periodComparison" class="tablewrap section"></div>
+      <div class="note section">This table is the preserved research-forward diagnostic window. It is not relabeled as pure prospective OOS for later-discovered overlays.</div>
     </div>
   </section>
 

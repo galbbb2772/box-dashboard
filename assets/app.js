@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const [d,p,bm,rf]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json())]);
+ const [d,rf,rflive]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward_live.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -30,74 +30,140 @@ function table(rows,cols){
 
  const chartLayout={
    paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",
-   font:{color:"#cad5e7"},margin:{l:52,r:18,t:20,b:44},
-   hovermode:"x unified",legend:{orientation:"h",y:1.08,x:0},
-   xaxis:{gridcolor:"#182235"},yaxis:{gridcolor:"#182235"}
+   font:{color:"#cad5e7"},margin:{l:52,r:18,t:30,b:44},
+   hovermode:"x unified",legend:{orientation:"h",y:1.12,x:0},
+   dragmode:"pan",
+   xaxis:{gridcolor:"#182235"},
+   yaxis:{gridcolor:"#182235",fixedrange:true}
  };
- Plotly.newPlot("equityChart",[
-   {x:p.series.top300.map(x=>x.date),y:p.series.top300.map(x=>x.equity),name:"Simple Core Top300",type:"scatter",mode:"lines"},
-   {x:p.series.top500.map(x=>x.date),y:p.series.top500.map(x=>x.equity),name:"Simple Core Top500",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.SPY.series.map(x=>x.date),y:bm.benchmarks.SPY.series.map(x=>x.equity),name:"SPY",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.QQQ.series.map(x=>x.date),y:bm.benchmarks.QQQ.series.map(x=>x.equity),name:"QQQ",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.DIA.series.map(x=>x.date),y:bm.benchmarks.DIA.series.map(x=>x.equity),name:"DIA",type:"scatter",mode:"lines"}
- ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Normalized equity"}},{responsive:true,displaylogo:false});
- Plotly.newPlot("drawdownChart",[
-   {x:p.drawdown.top300.map(x=>x.date),y:p.drawdown.top300.map(x=>x.drawdown*100),name:"Top300",type:"scatter",mode:"lines"},
-   {x:p.drawdown.top500.map(x=>x.date),y:p.drawdown.top500.map(x=>x.drawdown*100),name:"Top500",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.SPY.series.map(x=>x.date),y:bm.benchmarks.SPY.series.map(x=>x.drawdown*100),name:"SPY",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.QQQ.series.map(x=>x.date),y:bm.benchmarks.QQQ.series.map(x=>x.drawdown*100),name:"QQQ",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.DIA.series.map(x=>x.date),y:bm.benchmarks.DIA.series.map(x=>x.drawdown*100),name:"DIA",type:"scatter",mode:"lines"}
- ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Drawdown %",ticksuffix:"%"}},{responsive:true,displaylogo:false});
- const m300=Object.fromEntries(p.monthly.top300.map(x=>[x.month,x.return]));
- const m500=Object.fromEntries(p.monthly.top500.map(x=>[x.month,x.return]));
- const mspy=Object.fromEntries(bm.benchmarks.SPY.monthly.map(x=>[x.month,x.return]));
- const mqqq=Object.fromEntries(bm.benchmarks.QQQ.monthly.map(x=>[x.month,x.return]));
- const mdia=Object.fromEntries(bm.benchmarks.DIA.monthly.map(x=>[x.month,x.return]));
- const months=[...new Set([...Object.keys(m300),...Object.keys(m500),...Object.keys(mspy),...Object.keys(mqqq),...Object.keys(mdia)])].sort();
- $("#monthlyTable").innerHTML=table(months.map(m=>({month:m,a:m300[m],b:m500[m],spy:mspy[m],qqq:mqqq[m],dia:mdia[m]})),[
-   ["Month",r=>r.month],["Top300",r=>pct(r.a)],["Top500",r=>pct(r.b)],["SPY",r=>pct(r.spy)],["QQQ",r=>pct(r.qqq)],["DIA",r=>pct(r.dia)]
- ]);
- Plotly.newPlot("capitalChart",[
-   {x:p.series.top300.map(x=>x.date),y:p.series.top300.map(x=>x.equity*100000),name:"Top300",type:"scatter",mode:"lines"},
-   {x:p.series.top500.map(x=>x.date),y:p.series.top500.map(x=>x.equity*100000),name:"Top500",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.SPY.series.map(x=>x.date),y:bm.benchmarks.SPY.series.map(x=>x.equity*100000),name:"SPY",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.QQQ.series.map(x=>x.date),y:bm.benchmarks.QQQ.series.map(x=>x.equity*100000),name:"QQQ",type:"scatter",mode:"lines"},
-   {x:bm.benchmarks.DIA.series.map(x=>x.date),y:bm.benchmarks.DIA.series.map(x=>x.equity*100000),name:"DIA",type:"scatter",mode:"lines"}
- ],{...chartLayout,yaxis:{...chartLayout.yaxis,title:"Account value",tickprefix:"$"}},{responsive:true,displaylogo:false});
+ const plotConfig={
+   responsive:true,
+   displaylogo:false,
+   displayModeBar:false,
+   scrollZoom:true,
+   doubleClick:"reset"
+ };
+ const laneLabel=(lane)=>lane.id+" · "+lane.name.replace(/^\+\s*/,"");
+ const laneTraces=(valueFn,mode="lines+markers")=>rflive.lanes.map(lane=>({
+   x:lane.series.map(r=>r.date),
+   y:lane.series.map(valueFn),
+   name:laneLabel(lane),
+   type:"scatter",
+   mode,
+   line:{width:2},
+   marker:{size:5},
+   hovertemplate:"%{x}<br>%{fullData.name}<br>%{y:.4f}<extra></extra>"
+ }));
 
- $("#periodComparison").innerHTML=table([
-   {name:"Simple Core Top300",ret:d.simple_core.transport.top300.total_return,mdd:d.simple_core.transport.top300.max_drawdown,sh:d.simple_core.transport.top300.sharpe,exposure:d.simple_core.transport.top300.avg_exposure,end:100000*(1+d.simple_core.transport.top300.total_return)},
-   {name:"Simple Core Top500",ret:d.simple_core.transport.top500.total_return,mdd:d.simple_core.transport.top500.max_drawdown,sh:d.simple_core.transport.top500.sharpe,exposure:d.simple_core.transport.top500.avg_exposure,end:100000*(1+d.simple_core.transport.top500.total_return)},
-   {name:"SPY",ret:bm.benchmarks.SPY.total_return,mdd:bm.benchmarks.SPY.max_drawdown,sh:bm.benchmarks.SPY.annualized_sharpe_price_return,exposure:1,end:100000*(1+bm.benchmarks.SPY.total_return)},
-   {name:"QQQ",ret:bm.benchmarks.QQQ.total_return,mdd:bm.benchmarks.QQQ.max_drawdown,sh:bm.benchmarks.QQQ.annualized_sharpe_price_return,exposure:1,end:100000*(1+bm.benchmarks.QQQ.total_return)},
-   {name:"DIA",ret:bm.benchmarks.DIA.total_return,mdd:bm.benchmarks.DIA.max_drawdown,sh:bm.benchmarks.DIA.annualized_sharpe_price_return,exposure:1,end:100000*(1+bm.benchmarks.DIA.total_return)}
- ],[
-   ["Series",r=>r.name],["Return",r=>pct(r.ret)],["Max DD",r=>pct(r.mdd)],["Sharpe",r=>num(r.sh)],["Avg exposure",r=>pct(r.exposure)],["$100k →",r=>"$"+Math.round(r.end).toLocaleString()]
- ]);
+ const allDates=[...new Set(rflive.lanes.flatMap(l=>l.series.map(r=>r.date)))].sort();
+ const dateMs=allDates.map(x=>Date.parse(x+"T00:00:00Z")).filter(Number.isFinite);
+ const fullMin=dateMs.length?dateMs[0]:Date.parse(rflive.official_signal_boundary+"T00:00:00Z");
+ const fullMax=dateMs.length?dateMs[dateMs.length-1]:fullMin;
+ const minVisible=Math.max(1,Math.min(Number(rflive.min_visible_points||10),Math.max(1,dateMs.length)));
+ const toIso=(ms)=>new Date(ms).toISOString().slice(0,10);
+ function clampRange(a,b){
+   let lo=Number.isFinite(Date.parse(a))?Date.parse(a):fullMin;
+   let hi=Number.isFinite(Date.parse(b))?Date.parse(b):fullMax;
+   if(lo>hi){const z=lo;lo=hi;hi=z}
+   lo=Math.max(fullMin,lo); hi=Math.min(fullMax,hi);
+   if(dateMs.length>=minVisible && minVisible>1){
+     const visible=dateMs.filter(t=>t>=lo&&t<=hi).length;
+     if(visible<minVisible){
+       const center=(lo+hi)/2;
+       let nearest=0,best=Infinity;
+       dateMs.forEach((t,i)=>{const q=Math.abs(t-center);if(q<best){best=q;nearest=i}});
+       let s=Math.max(0,nearest-Math.floor((minVisible-1)/2));
+       s=Math.min(s,dateMs.length-minVisible);
+       lo=dateMs[s]; hi=dateMs[s+minVisible-1];
+     }
+   }
+   return [toIso(lo),toIso(hi)];
+ }
+ const initialRange=[toIso(fullMin),toIso(fullMax)];
+ const xaxisBase={...chartLayout.xaxis,range:initialRange,minallowed:toIso(fullMin),maxallowed:toIso(fullMax)};
 
- $("#efficiencyTable").innerHTML=table([
-   {name:"Simple Core Top300",ret:d.simple_core.transport.top300.total_return,exposure:d.simple_core.transport.top300.avg_exposure,eff:d.simple_core.transport.top300.total_return/d.simple_core.transport.top300.avg_exposure},
-   {name:"Simple Core Top500",ret:d.simple_core.transport.top500.total_return,exposure:d.simple_core.transport.top500.avg_exposure,eff:d.simple_core.transport.top500.total_return/d.simple_core.transport.top500.avg_exposure},
-   {name:"SPY",ret:bm.benchmarks.SPY.total_return,exposure:1,eff:bm.benchmarks.SPY.total_return},
-   {name:"QQQ",ret:bm.benchmarks.QQQ.total_return,exposure:1,eff:bm.benchmarks.QQQ.total_return},
-   {name:"DIA",ret:bm.benchmarks.DIA.total_return,exposure:1,eff:bm.benchmarks.DIA.total_return}
- ],[
-   ["Series",r=>r.name],["Total return",r=>pct(r.ret)],["Avg exposure",r=>pct(r.exposure)],["Return / exposure",r=>pct(r.eff)]
+ const equityTraces=laneTraces(r=>Number(r.equity));
+ const ddTraces=laneTraces(r=>Number(r.drawdown_pct));
+ const capitalTraces=laneTraces(r=>100000*Number(r.equity));
+
+ Plotly.newPlot("equityChart",equityTraces,{
+   ...chartLayout,
+   xaxis:{...xaxisBase,title:"U.S. market date"},
+   yaxis:{...chartLayout.yaxis,title:"Normalized equity"}
+ },plotConfig);
+ Plotly.newPlot("drawdownChart",ddTraces,{
+   ...chartLayout,
+   xaxis:{...xaxisBase,title:"U.S. market date"},
+   yaxis:{...chartLayout.yaxis,title:"Drawdown %",ticksuffix:"%"}
+ },plotConfig);
+ Plotly.newPlot("capitalChart",capitalTraces,{
+   ...chartLayout,
+   xaxis:{...xaxisBase,title:"U.S. market date"},
+   yaxis:{...chartLayout.yaxis,title:"Account value",tickprefix:"$"}
+ },plotConfig);
+
+ let syncing=false;
+ const chartIds=["equityChart","drawdownChart","capitalChart"];
+ function setRange(range){
+   if(syncing)return;
+   syncing=true;
+   Promise.all(chartIds.map(id=>Plotly.relayout(id,{"xaxis.range":range})))
+     .finally(()=>{syncing=false});
+ }
+ function resetCharts(){
+   setRange([toIso(fullMin),toIso(fullMax)]);
+   $$(".rangebtn").forEach(b=>b.classList.toggle("active",b.dataset.range==="ALL"));
+ }
+ function handleRelayout(ev){
+   if(syncing)return;
+   if(ev["xaxis.autorange"]){
+     resetCharts(); return;
+   }
+   const a=ev["xaxis.range[0]"],b=ev["xaxis.range[1]"];
+   if(a!=null&&b!=null){
+     const range=clampRange(a,b);
+     setRange(range);
+     $$(".rangebtn").forEach(x=>x.classList.remove("active"));
+   }
+ }
+ chartIds.forEach(id=>{
+   const el=document.getElementById(id);
+   if(el&&el.on)el.on("plotly_relayout",handleRelayout);
+ });
+ $$(".rangebtn[data-range]").forEach(btn=>btn.addEventListener("click",()=>{
+   const key=btn.dataset.range;
+   if(key==="ALL"){resetCharts();return}
+   const days=key==="1M"?30:90;
+   const range=clampRange(toIso(fullMax-days*86400000),toIso(fullMax));
+   setRange(range);
+   $$(".rangebtn").forEach(x=>x.classList.toggle("active",x===btn));
+ }));
+ const resetBtn=$("#resetForwardCharts");
+ if(resetBtn)resetBtn.addEventListener("click",resetCharts);
+
+ const latestRows=rflive.lanes.map(lane=>{
+   const s=lane.series||[];
+   const last=s[s.length-1]||{equity:1,drawdown_pct:0,gross_exposure_pct:0,open_positions:0,closed_trades_cum:0,date:rflive.official_signal_boundary};
+   const mdd=s.length?Math.min(...s.map(r=>Number(r.drawdown_pct)||0)):0;
+   return {id:lane.id,name:lane.name,role:lane.role,last,mdd};
+ });
+ $("#performanceSnapshot").innerHTML='<div class="metricgrid">'+latestRows.map(x=>
+   '<div class="metric"><span class="small">'+x.id+' · '+x.role+'</span><b>'+((Number(x.last.equity)-1)*100).toFixed(2)+'%</b>'+
+   '<span class="small">MDD '+x.mdd.toFixed(2)+'% · Gross '+Number(x.last.gross_exposure_pct||0).toFixed(1)+'% · '+x.last.date+'</span></div>'
+ ).join('')+'</div>';
+ $("#benchmarkNote").innerHTML='<b>Prospective Forward only</b><br>Signal boundary: '+rflive.official_signal_boundary+
+   ' · earliest entry: '+rflive.earliest_official_entry+
+   ' · last processed: '+(rflive.last_processed_market_date||"waiting for first close")+
+   '.<br><span class="small">All six lanes start from normalized equity 1.0000 and share the same untouched market observations.</span>';
+
+ $("#periodComparison").innerHTML=table(rf.lanes,[
+   ["Lane",r=>r.id],
+   ["Role",r=>r.role||"—"],
+   ["BOX system",r=>r.name],
+   ["Research-forward return",r=>Number(r.research_forward_return_pct).toFixed(2)+"%"],
+   ["Forward Max DD",r=>Number(r.research_forward_mdd_pct).toFixed(2)+"%"],
+   ["Forward Sharpe",r=>r.research_forward_sharpe==null?"—":Number(r.research_forward_sharpe).toFixed(2)]
  ]);
- $("#performanceSnapshot").innerHTML=
-   '<div class="metricgrid">'+[
-    ["Top300 Total",pct(d.simple_core.transport.top300.total_return)],
-    ["Top300 Max DD",pct(d.simple_core.transport.top300.max_drawdown)],
-    ["Top300 Sharpe",num(d.simple_core.transport.top300.sharpe)],
-    ["Top300 Exposure",pct(d.simple_core.transport.top300.avg_exposure)],
-    ["Top500 Total",pct(d.simple_core.transport.top500.total_return)],
-    ["Top500 Max DD",pct(d.simple_core.transport.top500.max_drawdown)],
-    ["Top500 Sharpe",num(d.simple_core.transport.top500.sharpe)],
-    ["Top500 Exposure",pct(d.simple_core.transport.top500.avg_exposure)]
-   ].map(x=>'<div class="metric"><span class="small">'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')+'</div>';
- $("#benchmarkNote").innerHTML='<b>Benchmark price returns</b><br>'+
-   ['SPY','QQQ','DIA'].map(s=>s+' '+pct(bm.benchmarks[s].total_return)+' · MDD '+pct(bm.benchmarks[s].max_drawdown)).join('<br>')+
-   '<br><span class="small">2026-04-01 → 2026-10-05 · '+bm.source+'.</span>';
 
  $("#strategyTable").innerHTML=table(d.strategies,[
   ["ID",r=>r.id],["Strategy",r=>r.name],["Role",r=>r.role],["Status",r=>badge(r.status)],["Evidence",r=>r.evidence]

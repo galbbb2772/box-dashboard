@@ -92,7 +92,21 @@ const [live,research,histmeta,...histlanes]=await Promise.all([
 ]);
 const LANES=live.lanes.map(l=>l.id), laneById=Object.fromEntries(live.lanes.map(l=>[l.id,l]));
 const histobs={...histmeta,lanes:histlanes.filter(Boolean)};
-const observationLanes=histobs.lanes||[];
+function b64bytes(v){const b=atob(v);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function decodeObservationLane(l){
+ if(!l)return null;
+ if(Array.isArray(l.series))return l;
+ if(!l.do||!l.eq||!l.n)return l;
+ const db=b64bytes(l.do),eb=b64bytes(l.eq),dd=new DataView(db.buffer),ed=new DataView(eb.buffer);
+ const series=[];
+ for(let i=0;i<l.n;i++){
+   const day=l.base+dd.getUint16(i*2,true);
+   const date=new Date(day*86400000).toISOString().slice(0,10);
+   series.push({date,equity:ed.getFloat64(i*8,true),segment:date<="2026-03-31"?"historical":"research_forward"});
+ }
+ return {...l,series};
+}
+const observationLanes=(histobs.lanes||[]).map(decodeObservationLane).filter(Boolean);
 const rows=live.lanes.map(l=>{const s=l.series||[],v=s.at(-1)||{};return {id:l.id,name:l.name,role:l.role,dates:s.length,equity:Number(v.equity??1),dd:Number(v.drawdown_pct??0),latest:v.date||"—"}});
 const hero=document.getElementById("heroBadge");
 hero.textContent=(live.last_processed_market_date||"WAITING EOD")+" · "+live.official_signal_boundary;

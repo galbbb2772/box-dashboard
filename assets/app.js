@@ -57,15 +57,34 @@ function table(rows,cols){
 
  const allDates=[...new Set(rflive.lanes.flatMap(l=>l.series.map(r=>r.date)))].sort();
  const dateMs=allDates.map(x=>Date.parse(x+"T00:00:00Z")).filter(Number.isFinite);
- const fullMin=dateMs.length?dateMs[0]:Date.parse(rflive.official_signal_boundary+"T00:00:00Z");
- const fullMax=dateMs.length?dateMs[dateMs.length-1]:fullMin;
+ const boundaryMs=Date.parse(rflive.official_signal_boundary+"T00:00:00Z");
+ const dataMin=dateMs.length?dateMs[0]:boundaryMs;
+ const dataMax=dateMs.length?dateMs[dateMs.length-1]:boundaryMs;
+ const oneDay=86400000;
+ // Plotly cannot scale an axis whose lower and upper bounds are identical.
+ // Until a second Forward observation arrives, render a narrow padded window
+ // around the freeze boundary. Once more dates exist, hard bounds become the
+ // actual saved Forward interval.
+ const hardMin=(dataMax>dataMin)?dataMin:(dataMin-oneDay);
+ const hardMax=(dataMax>dataMin)?dataMax:(dataMax+oneDay);
  const minVisible=Math.max(1,Math.min(Number(rflive.min_visible_points||10),Math.max(1,dateMs.length)));
  const toIso=(ms)=>new Date(ms).toISOString().slice(0,10);
+ function parseRangeValue(v,fallback){
+   const t=Date.parse(String(v));
+   return Number.isFinite(t)?t:fallback;
+ }
  function clampRange(a,b){
-   let lo=Number.isFinite(Date.parse(a))?Date.parse(a):fullMin;
-   let hi=Number.isFinite(Date.parse(b))?Date.parse(b):fullMax;
+   let lo=parseRangeValue(a,hardMin);
+   let hi=parseRangeValue(b,hardMax);
    if(lo>hi){const z=lo;lo=hi;hi=z}
-   lo=Math.max(fullMin,lo); hi=Math.min(fullMax,hi);
+   lo=Math.max(hardMin,lo);
+   hi=Math.min(hardMax,hi);
+   if(hi<=lo){
+     const center=Math.min(hardMax,Math.max(hardMin,(lo+hi)/2||dataMin));
+     lo=Math.max(hardMin,center-oneDay/2);
+     hi=Math.min(hardMax,center+oneDay/2);
+     if(hi<=lo){lo=hardMin;hi=hardMax}
+   }
    if(dateMs.length>=minVisible && minVisible>1){
      const visible=dateMs.filter(t=>t>=lo&&t<=hi).length;
      if(visible<minVisible){
@@ -74,13 +93,17 @@ function table(rows,cols){
        dateMs.forEach((t,i)=>{const q=Math.abs(t-center);if(q<best){best=q;nearest=i}});
        let s=Math.max(0,nearest-Math.floor((minVisible-1)/2));
        s=Math.min(s,dateMs.length-minVisible);
-       lo=dateMs[s]; hi=dateMs[s+minVisible-1];
+       lo=dateMs[s];
+       hi=dateMs[s+minVisible-1];
+       if(hi<=lo){lo=Math.max(hardMin,lo-oneDay/2);hi=Math.min(hardMax,hi+oneDay/2)}
      }
    }
    return [toIso(lo),toIso(hi)];
  }
- const initialRange=[toIso(fullMin),toIso(fullMax)];
- const xaxisBase={...chartLayout.xaxis,range:initialRange,minallowed:toIso(fullMin),maxallowed:toIso(fullMax)};
+ const initialRange=[toIso(hardMin),toIso(hardMax)];
+ // Bounds are enforced in plotly_relayout rather than minallowed/maxallowed so
+ // the dashboard works consistently on the pinned Plotly build and mobile.
+ const xaxisBase={...chartLayout.xaxis,range:initialRange};
 
  const equityTraces=laneTraces(r=>Number(r.equity));
  const ddTraces=laneTraces(r=>Number(r.drawdown_pct));
@@ -111,7 +134,7 @@ function table(rows,cols){
      .finally(()=>{syncing=false});
  }
  function resetCharts(){
-   setRange([toIso(fullMin),toIso(fullMax)]);
+   setRange([toIso(hardMin),toIso(hardMax)]);
    $$(".rangebtn").forEach(b=>b.classList.toggle("active",b.dataset.range==="ALL"));
  }
  function handleRelayout(ev){
@@ -134,7 +157,7 @@ function table(rows,cols){
    const key=btn.dataset.range;
    if(key==="ALL"){resetCharts();return}
    const days=key==="1M"?30:90;
-   const range=clampRange(toIso(fullMax-days*86400000),toIso(fullMax));
+   const range=clampRange(toIso(dataMax-days*oneDay),toIso(dataMax));
    setRange(range);
    $$(".rangebtn").forEach(x=>x.classList.toggle("active",x===btn));
  }));

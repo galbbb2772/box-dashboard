@@ -109,28 +109,16 @@ function table(rows,cols){
  const ddTraces=laneTraces(r=>Number(r.drawdown_pct));
  const capitalTraces=laneTraces(r=>100000*Number(r.equity));
 
- Plotly.newPlot("equityChart",equityTraces,{
-   ...chartLayout,
-   xaxis:{...xaxisBase,title:"U.S. market date"},
-   yaxis:{...chartLayout.yaxis,title:"Normalized equity"}
- },plotConfig);
- Plotly.newPlot("drawdownChart",ddTraces,{
-   ...chartLayout,
-   xaxis:{...xaxisBase,title:"U.S. market date"},
-   yaxis:{...chartLayout.yaxis,title:"Drawdown %",ticksuffix:"%"}
- },plotConfig);
- Plotly.newPlot("capitalChart",capitalTraces,{
-   ...chartLayout,
-   xaxis:{...xaxisBase,title:"U.S. market date"},
-   yaxis:{...chartLayout.yaxis,title:"Account value",tickprefix:"$"}
- },plotConfig);
-
  let syncing=false;
+ let performanceChartsReady=false;
+ let performanceControlsBound=false;
  const chartIds=["equityChart","drawdownChart","capitalChart"];
+
  function setRange(range){
-   if(syncing)return;
+   if(!performanceChartsReady||syncing)return;
    syncing=true;
    Promise.all(chartIds.map(id=>Plotly.relayout(id,{"xaxis.range":range})))
+     .catch(()=>{})
      .finally(()=>{syncing=false});
  }
  function resetCharts(){
@@ -149,20 +137,60 @@ function table(rows,cols){
      $$(".rangebtn").forEach(x=>x.classList.remove("active"));
    }
  }
- chartIds.forEach(id=>{
-   const el=document.getElementById(id);
-   if(el&&el.on)el.on("plotly_relayout",handleRelayout);
- });
- $$(".rangebtn[data-range]").forEach(btn=>btn.addEventListener("click",()=>{
-   const key=btn.dataset.range;
-   if(key==="ALL"){resetCharts();return}
-   const days=key==="1M"?30:90;
-   const range=clampRange(toIso(dataMax-days*oneDay),toIso(dataMax));
-   setRange(range);
-   $$(".rangebtn").forEach(x=>x.classList.toggle("active",x===btn));
- }));
- const resetBtn=$("#resetForwardCharts");
- if(resetBtn)resetBtn.addEventListener("click",resetCharts);
+ function bindPerformanceControls(){
+   if(performanceControlsBound)return;
+   performanceControlsBound=true;
+   $$(".rangebtn[data-range]").forEach(btn=>btn.addEventListener("click",()=>{
+     const key=btn.dataset.range;
+     if(key==="ALL"){resetCharts();return}
+     const days=key==="1M"?30:90;
+     const range=clampRange(toIso(dataMax-days*oneDay),toIso(dataMax));
+     setRange(range);
+     $$(".rangebtn").forEach(x=>x.classList.toggle("active",x===btn));
+   }));
+   const resetBtn=$("#resetForwardCharts");
+   if(resetBtn)resetBtn.addEventListener("click",resetCharts);
+ }
+ async function initPerformanceCharts(){
+   if(performanceChartsReady){
+     chartIds.forEach(id=>{try{Plotly.Plots.resize(document.getElementById(id))}catch(_){}});
+     return;
+   }
+   // Plotly can miscompute axes when a graph is created inside display:none.
+   // Only build the Forward charts after the Performance panel is visible.
+   const layoutEq={
+     ...chartLayout,
+     xaxis:{...xaxisBase,title:"U.S. market date"},
+     yaxis:{...chartLayout.yaxis,title:"Normalized equity"}
+   };
+   const layoutDd={
+     ...chartLayout,
+     xaxis:{...xaxisBase,title:"U.S. market date"},
+     yaxis:{...chartLayout.yaxis,title:"Drawdown %",ticksuffix:"%"}
+   };
+   const layoutCap={
+     ...chartLayout,
+     xaxis:{...xaxisBase,title:"U.S. market date"},
+     yaxis:{...chartLayout.yaxis,title:"Account value",tickprefix:"$"}
+   };
+   try{
+     await Plotly.newPlot("equityChart",equityTraces,layoutEq,plotConfig);
+     await Plotly.newPlot("drawdownChart",ddTraces,layoutDd,plotConfig);
+     await Plotly.newPlot("capitalChart",capitalTraces,layoutCap,plotConfig);
+     performanceChartsReady=true;
+     chartIds.forEach(id=>{
+       const el=document.getElementById(id);
+       if(el&&el.on)el.on("plotly_relayout",handleRelayout);
+     });
+     bindPerformanceControls();
+   }catch(err){
+     ["equityChart","drawdownChart","capitalChart"].forEach(id=>{
+       const el=document.getElementById(id);
+       if(el)el.innerHTML='<div class="note">Forward chart is waiting for enough market observations. Data rows remain intact.</div>';
+     });
+     console.error("Forward chart render failed",err);
+   }
+ }
 
  const latestRows=rflive.lanes.map(lane=>{
    const s=lane.series||[];
@@ -230,11 +258,26 @@ function table(rows,cols){
    type:"bar",
    hovertemplate:"%{x}<br>%{text}<br>Research-forward return: %{y:.2f}%<extra></extra>"
  }];
- Plotly.newPlot("robustForwardChart",robustTraces,{
-   ...chartLayout,
-   yaxis:{...chartLayout.yaxis,title:"Return % · 2026-04-01 → 2026-10-09",ticksuffix:"%"},
-   xaxis:{...chartLayout.xaxis,title:"BOX cumulative lane"}
- },{responsive:true,displaylogo:false});
+ let robustChartReady=false;
+ async function initRobustChart(){
+   if(robustChartReady){
+     try{Plotly.Plots.resize(document.getElementById("robustForwardChart"))}catch(_){}
+     return;
+   }
+   try{
+     await Plotly.newPlot("robustForwardChart",robustTraces,{
+       ...chartLayout,
+       dragmode:false,
+       yaxis:{...chartLayout.yaxis,title:"Return % · 2026-04-01 → 2026-10-09",ticksuffix:"%"},
+       xaxis:{...chartLayout.xaxis,title:"BOX cumulative lane",fixedrange:true}
+     },{responsive:true,displaylogo:false,displayModeBar:false});
+     robustChartReady=true;
+   }catch(err){
+     const el=$("#robustForwardChart");
+     if(el)el.innerHTML='<div class="note">Research-forward comparison chart could not render on this browser. The exact figures remain in the table below.</div>';
+     console.error("Research-forward chart render failed",err);
+   }
+ }
 
  $("#robustForwardTable").innerHTML=table(rf.lanes,[
    ["Lane",r=>r.id],
@@ -316,12 +359,21 @@ function table(rows,cols){
   '<div class="section">'+badge(d.gap_tail.decision)+'</div>'+
   '<div class="section note">'+d.gap_tail.public_note+'</div>';
 
- $$(".tab").forEach(b=>b.onclick=()=>{
-   $$(".tab").forEach(x=>x.classList.remove("active"));
-   $$(".panel").forEach(x=>x.classList.remove("active"));
+ $(".tab").forEach(b=>b.onclick=()=>{
+   $(".tab").forEach(x=>x.classList.remove("active"));
+   $(".panel").forEach(x=>x.classList.remove("active"));
    b.classList.add("active");
-   $("#"+b.dataset.tab).classList.add("active");
+   const panel=$("#"+b.dataset.tab);
+   panel.classList.add("active");
+   requestAnimationFrame(()=>{
+     if(b.dataset.tab==="performance")initPerformanceCharts();
+     if(b.dataset.tab==="forward")initRobustChart();
+   });
  });
 })().catch(err=>{
- document.body.insertAdjacentHTML("beforeend",'<div class="wrap" style="color:#ff7d89">Dashboard load error: '+String(err)+'</div>');
+ console.error("Dashboard load error",err);
+ const existing=document.getElementById("dashboardLoadError");
+ if(!existing){
+   document.body.insertAdjacentHTML("beforeend",'<div id="dashboardLoadError" class="wrap" style="color:#ff7d89">Dashboard load error: '+String(err)+'</div>');
+ }
 });

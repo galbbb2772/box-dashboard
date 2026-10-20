@@ -3,160 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Box Strategy Lab · Dashboard</title>
-<meta name="description" content="Public dashboard for Box strategy research, validation, backtests, and Forward OOS tracking.">
+<title>BOX · Forward Research Lab</title>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<link rel="stylesheet" href="assets/style.css">
+<script src="plotly-mobile-guard.js?v=boxv4"></script>
+<style>
+:root{
+  --bg:#070a10;--panel:#0f1520;--panel2:#121a28;--line:#253047;--text:#eef4ff;
+  --muted:#8d9ab0;--good:#56d6a4;--bad:#ff7d89;--warn:#f3c76b;--accent:#8cb8ff;--violet:#b59cff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#070a10,#0b111b 52%,#070a10);color:var(--text);font:14px Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1500px;margin:auto;padding:20px}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+h1{font-size:clamp(27px,4vw,42px);margin:0 0 5px;letter-spacing:-.035em}
+h2{font-size:18px;margin:0 0 10px}
+.muted{color:var(--muted)} .tiny{font-size:11px;color:var(--muted)}
+.badge{border:1px solid #295342;background:#0d211b;color:var(--good);padding:7px 11px;border-radius:999px;font-size:12px;font-weight:760}
+.badge.warn{border-color:#5b4b25;background:#241d0d;color:var(--warn)}
+.badge.bad{border-color:#5b2930;background:#241014;color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:9px;margin-top:16px}
+.card{background:linear-gradient(180deg,#121927,#0f1420);border:1px solid var(--line);border-radius:16px;padding:15px;min-width:0}
+.label{font-size:10px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase}
+.value{font-size:25px;font-weight:780;margin:6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.small{font-size:12px;color:var(--muted);line-height:1.45}
+.tabs{display:flex;gap:7px;overflow:auto;margin:15px 0;padding-bottom:2px}
+.tabs button,.range button,.laneBtn{border:1px solid #2a354b;background:#111826;color:#cdd7e8;padding:8px 12px;border-radius:10px;white-space:nowrap;cursor:pointer}
+.tabs button.active,.range button.active,.laneBtn.active{background:#1b2c49;border-color:#557bc0;color:#fff}
+.panel{display:none}.panel.on{display:block}
+.section{margin-top:12px}.chart{height:420px}.chart.smallchart{height:300px}
+.two{display:grid;grid-template-columns:1.3fr .7fr;gap:12px}.twoequal{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.statusgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.status{border:1px solid #202b3e;background:#0b101a;border-radius:12px;padding:12px}.status b{display:block;margin-top:4px;overflow-wrap:anywhere}
+table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:9px 7px;border-bottom:1px solid #202a3b;text-align:right;vertical-align:top}
+th:first-child,td:first-child{text-align:left}th{color:var(--muted);position:sticky;top:0;background:#0f1520;z-index:2}
+td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
+.tablewrap{overflow:auto;max-height:620px}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.accent{color:var(--accent)}
+.empty{border:1px dashed #2b374c;border-radius:13px;padding:34px 16px;text-align:center;color:var(--muted)}
+.note{border-left:3px solid #466995;background:#0c111b;color:#aeb8c9;padding:10px 12px;border-radius:0 10px 10px 0;line-height:1.6}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.flow>div{border:1px solid #263149;background:#0b111c;border-radius:12px;padding:11px}
+.flow b{display:block;margin-bottom:4px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:7px 12px;padding:5px 0;border-bottom:1px solid #1c2637}.kv:last-child{border-bottom:0}
+.pill{display:inline-block;padding:3px 7px;border:1px solid #32415a;border-radius:999px;font-size:10px;font-weight:700}
+.pill.good{border-color:#2d5e4d;background:#10251e}.pill.bad{border-color:#65313a;background:#261116}.pill.warn{border-color:#5c4d29;background:#251e0e}
+@media(max-width:1180px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:900px){.two,.twoequal{grid-template-columns:1fr}.statusgrid{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(2,1fr)}.chart{height:370px}}
+@media(max-width:560px){.wrap{padding:13px}.grid{grid-template-columns:repeat(2,1fr);gap:7px}.card{padding:12px;border-radius:13px}.value{font-size:21px}.chart{height:330px}.flow{grid-template-columns:1fr}}
+</style>
 </head>
-<body>
-<div class="wrap">
-  <div class="hero">
-    <div>
-      <div class="eyebrow">Box Strategy Lab</div>
-      <h1>Research Dashboard</h1>
-      <div class="subtitle">Public-safe view of Box strategy research, holdout evidence, Forward OOS progress, and promotion status. Core logic and raw research remain private.</div>
-    </div>
-    <div id="asof" class="badge">LOADING</div>
+<body><div class="wrap">
+<div class="top">
+  <div>
+    <h1>BOX · Forward Research Lab</h1>
+    <div class="muted">Geometry V3 · Capital V1.1 · A2R · Sync-High · Deep-only · Forward OOS</div>
   </div>
-
-  <div id="topCards" class="grid section"></div>
-
-  <div class="tabs">
-    <button class="tab active" data-tab="overview">Overview</button>
-    <button class="tab" data-tab="performance">Performance</button>
-    <button class="tab" data-tab="strategies">Strategies</button>
-    <button class="tab" data-tab="holdout">Holdout</button>
-    <button class="tab" data-tab="forward">Forward OOS</button>
-    <button class="tab" data-tab="research">Research</button>
-  </div>
-
-  <section id="overview" class="panel active">
-    <div class="card">
-      <div class="label">Promotion pipeline</div>
-      <div class="flow section">
-        <div class="step"><b>1 · Research</b><span class="small">Discover and reproduce the idea.</span></div>
-        <div class="step"><b>2 · Holdout</b><span class="small">Preregistered untouched validation.</span></div>
-        <div class="step"><b>3 · Freeze</b><span class="small">Parameters and logic become immutable.</span></div>
-        <div class="step"><b>4 · Forward OOS</b><span class="small">Only post-freeze evidence counts.</span></div>
-        <div class="step"><b>5 · Review</b><span class="small">Risk, execution and stability review.</span></div>
-        <div class="step"><b>6 · Production</b><span class="small">Formal promotion only after all gates.</span></div>
-      </div>
-    </div>
-    <div class="section two">
-      <div class="card">
-        <div class="label">Simple Core · transport holdout</div>
-        <div id="transportMetrics" class="section"></div>
-      </div>
-      <div class="card">
-        <div class="label">Universe comparison</div>
-        <div id="universeBars" class="section"></div>
-      </div>
-    </div>
-  </section>
-
-
-  <section id="performance" class="panel">
-    <div class="card">
-      <div class="chart-head">
-        <div>
-          <div class="label">BOX Robust Stack · Prospective Forward OOS equity · 6 lanes</div>
-          <div class="small section">All six frozen cumulative lanes are shown together. Tap a legend item to isolate/hide a lane.</div>
-        </div>
-        <div class="chart-controls" aria-label="Chart range controls">
-          <button type="button" class="rangebtn" data-range="1M">1M</button>
-          <button type="button" class="rangebtn" data-range="3M">3M</button>
-          <button type="button" class="rangebtn active" data-range="ALL">ALL</button>
-          <button type="button" class="rangebtn" id="resetForwardCharts">↺ 重置</button>
-        </div>
-      </div>
-      <div id="equityChart" class="chart interactive-chart"></div>
-      <div class="small chart-help">手机：单指左右拖动 · 双指缩放。桌面：拖动平移 · 滚轮/触控板缩放。最少保留 10 个数据点，最大范围锁定为完整 Forward 区间。</div>
-    </div>
-    <div class="section two">
-      <div class="card">
-        <div class="label">Drawdown · synchronized with equity</div>
-        <div id="drawdownChart" class="chart smallchart interactive-chart"></div>
-      </div>
-      <div class="card">
-        <div class="label">Prospective Forward snapshot</div>
-        <div id="performanceSnapshot" class="section"></div>
-        <div id="benchmarkNote" class="note section"></div>
-      </div>
-    </div>
-    <div class="section card">
-      <div class="label">$100,000 normalized account · 6 lanes</div>
-      <div id="capitalChart" class="chart smallchart interactive-chart"></div>
-    </div>
-    <div class="section card">
-      <div class="label">BOX research-forward reference · 2026-04-01 → 2026-10-09</div>
-      <div id="periodComparison" class="tablewrap section"></div>
-      <div class="note section">This table is the preserved research-forward diagnostic window. It is not relabeled as pure prospective OOS for later-discovered overlays.</div>
-    </div>
-  </section>
-
-  <section id="strategies" class="panel">
-    <div class="card">
-      <div class="label">Strategy registry</div>
-      <div id="strategyTable" class="tablewrap section"></div>
-    </div>
-  </section>
-
-  <section id="holdout" class="panel">
-    <div class="three">
-      <div class="card">
-        <div class="label">Simple Core Transport</div>
-        <div class="value">POST-DISCOVERY</div>
-        <div class="small">2026-04-01 → 2026-10-05</div>
-        <div class="section note">Top300 and Top500 transport evidence is displayed at aggregate level only.</div>
-      </div>
-      <div class="card">
-        <div class="label">Gap Retest-Lift</div>
-        <div id="gapEvidence"></div>
-      </div>
-      <div class="card">
-        <div class="label">Gap Tail</div>
-        <div id="gapTail"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="forward" class="panel">
-    <div id="forwardCards" class="grid"></div>
-    <div class="section card">
-      <div class="label">BOX Robust Stack · research-forward comparison</div>
-      <div id="robustForwardChart" class="chart"></div>
-      <div id="robustForwardBoundaryNote" class="note section"></div>
-    </div>
-    <div class="section card">
-      <div class="label">Robust Stack · lane comparison</div>
-      <div id="robustForwardTable" class="tablewrap section"></div>
-    </div>
-    <div class="section two">
-      <div class="card">
-        <div class="label">Pure prospective boundary</div>
-        <div id="prospectiveBoundary" class="value" style="font-size:19px">—</div>
-        <div class="small section">Later-developed lanes are not relabeled as pure OOS before their true prospective boundary.</div>
-      </div>
-      <div class="card">
-        <div class="label">BOX research-forward origin</div>
-        <div id="v4DisplayStart" class="value" style="font-size:19px">—</div>
-        <div class="small section">The comparison uses the preserved BOX research-forward window.</div>
-      </div>
-    </div>
-    <div class="section note">Forward status shown here is public reporting only. The authoritative ledgers and observers remain in the private research repository.</div>
-  </section>
-
-  <section id="research" class="panel">
-    <div id="recoveredPrograms" class="two"></div>
-    <div class="section note">A recovered historical backtest is not pure prospective OOS. The preserved BOX research-forward diagnostic window is 2026-04-01 through 2026-10-09; the current six-lane prospective boundary is 2026-10-19.</div>
-    <div class="section card">
-      <div class="label">Recovered historical research lines</div>
-      <div id="researchTable" class="tablewrap section"></div>
-    </div>
-  </section>
-
-  <div class="footer">Public research dashboard · not investment advice · raw strategy logic and trade-level data are intentionally excluded.</div>
+  <div id="heroBadge" class="badge">LOADING</div>
 </div>
-<script src="assets/app.js"></script>
+
+<div class="grid" id="topCards"></div>
+
+<div class="tabs">
+<button class="active" data-tab="live">实盘总览</button>
+<button data-tab="oos">Forward OOS</button>
+<button data-tab="daily">日收益</button>
+<button data-tab="research">研究 Forward</button>
+<button data-tab="system">系统状态</button>
+</div>
+<section id="live" class="panel on"><div class="two"><div class="card"><div class="label">BOX · Six-lane Prospective Forward Equity</div><div id="liveEquity" class="chart"></div></div><div class="card"><div class="label">Forward snapshot</div><div id="regimeSnapshot"></div></div></div><div class="section card"><div class="label">六条 BOX 策略 · 最新状态</div><div id="laneOverview" class="tablewrap"></div></div></section>
+<section id="oos" class="panel"><div class="two"><div class="card"><div class="label">Forward OOS Equity</div><div class="range section" id="laneButtons"></div><div id="oosEquity" class="chart"></div></div><div class="card"><div class="label">Selected lane metrics</div><div id="laneStats"></div></div></div></section>
+<section id="daily" class="panel"><div class="card"><div class="label">Forward Daily Returns · all lanes</div><div id="dailyReturnChart" class="chart"></div></div><div class="section card"><div class="label">Daily Equity / Drawdown Ledger</div><div id="dailyTable" class="tablewrap"></div></div></section>
+<section id="research" class="panel"><div class="card"><div class="label">BOX research-forward · 2026-04-01 to 2026-10-09</div><div id="researchTable" class="tablewrap"></div><div class="note section">此窗口为研究 Forward，不作为后来各层的独立 Prospective OOS。</div></div></section>
+<section id="system" class="panel"><div class="card"><div id="systemGrid" class="statusgrid"></div><div class="note section" id="systemNote"></div></div></section>
+</div>
+
+<script>
+const common={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:"#cdd7e8"},margin:{l:54,r:18,t:22,b:44},hovermode:"x unified",legend:{orientation:"h",y:1.08,x:0},xaxis:{gridcolor:"#172034"},yaxis:{gridcolor:"#172034"}};
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
+function num(v,d=2){return v==null||!Number.isFinite(Number(v))?"—":Number(v).toFixed(d)}
+function kv(k,v){return '<div class="kv"><span class="small">'+esc(k)+'</span><b>'+esc(v)+'</b></div>'}
+function table(rows,cols){if(!rows?.length)return '<div class="empty">暂无已验证记录</div>';return '<table><thead><tr>'+cols.map(c=>'<th>'+esc(c[0])+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+esc(c[1](r))+'</td>').join('')+'</tr>').join('')+'</tbody></table>'}
+(async()=>{
+const [live,research]=await Promise.all([
+ fetch("data/robust_forward_live.json?x="+Date.now()).then(r=>{if(!r.ok)throw Error("live data HTTP "+r.status);return r.json()}),
+ fetch("data/robust_forward.json?x="+Date.now()).then(r=>{if(!r.ok)throw Error("research data HTTP "+r.status);return r.json()})
+]);
+const LANES=live.lanes.map(l=>l.id), laneById=Object.fromEntries(live.lanes.map(l=>[l.id,l]));
+const rows=live.lanes.map(l=>{const s=l.series||[],v=s.at(-1)||{};return {id:l.id,name:l.name,role:l.role,dates:s.length,equity:Number(v.equity??1),dd:Number(v.drawdown_pct??0),latest:v.date||"—"}});
+const hero=document.getElementById("heroBadge");
+hero.textContent=(live.last_processed_market_date||"WAITING EOD")+" · "+live.official_signal_boundary;
+hero.className="badge warn";
+document.getElementById("topCards").innerHTML=[
+ ["BOX Forward","6 lanes","Geometry V3 → Capital → A2R → Sync-High → Deep-only"],
+ ["Prospective freeze",live.official_signal_boundary,"Earliest next-open "+live.earliest_official_entry],
+ ["Verified EOD rows",live.official_daily_rows||0,"No fabricated market returns"],
+ ["Latest market",live.last_processed_market_date||"PENDING","Public ledger"],
+ ["Trade events",live.official_trade_events||0,"Official only"],
+ ["Research window",research.research_forward_start+" → "+research.research_forward_end,"Separate diagnostic"],
+ ["Primary","FWD-05","Full Shadow + Deep-only"],
+ ["Probe","FWD-06","0.25% Sync-High risk"]
+].map(x=>'<div class="card"><div class="label">'+esc(x[0])+'</div><div class="value">'+esc(x[1])+'</div><div class="small">'+esc(x[2])+'</div></div>').join("");
+const curve=(l,key,scale=1)=>({x:(l.series||[]).map(r=>r.date),y:(l.series||[]).map(r=>Number(r[key]??0)*scale),name:l.id,type:"scatter",mode:"lines"});
+const usable=live.lanes.filter(l=>(l.series||[]).length>=2);
+if(usable.length){
+ Plotly.newPlot("liveEquity",usable.map(l=>curve(l,"equity")),{...common,yaxis:{...common.yaxis,title:"Equity multiple"}},{responsive:true,displaylogo:false});
+}else document.getElementById("liveEquity").innerHTML='<div class="empty">Forward OOS 已初始化，但只有起始净值点。等待至少第二条正式 EOD 记录后显示六条净值曲线；不会伪造数据。</div>';
+document.getElementById("regimeSnapshot").innerHTML=kv("Signal boundary",live.official_signal_boundary)+kv("Earliest entry",live.earliest_official_entry)+kv("Last official EOD",live.last_processed_market_date||"PENDING")+kv("Verified rows",live.official_daily_rows||0)+kv("Trade events",live.official_trade_events||0)+kv("Main stack","FWD-05");
+document.getElementById("laneOverview").innerHTML=table(rows,[["Lane",r=>r.id],["Strategy",r=>r.name],["Role",r=>r.role],["Equity",r=>num(r.equity,5)],["DD",r=>num(r.dd)+"%"],["Latest",r=>r.latest]]);
+let selected=LANES[0];
+document.getElementById("laneButtons").innerHTML=LANES.map(id=>'<button class="laneBtn '+(id===selected?"active":"")+'" data-lane="'+id+'">'+id+'</button>').join("");
+function renderLane(id){
+ selected=id;document.querySelectorAll(".laneBtn").forEach(b=>b.classList.toggle("active",b.dataset.lane===id));
+ const l=laneById[id],s=l.series||[],last=s.at(-1)||{};
+ const el=document.getElementById("oosEquity");
+ if(s.length>=2)Plotly.react(el,[curve(l,"equity")],{...common,yaxis:{...common.yaxis,title:"Equity multiple"}},{responsive:true,displaylogo:false});
+ else el.innerHTML='<div class="empty">此 Lane 只有初始净值点，等待第二条正式 EOD 记录。</div>';
+ document.getElementById("laneStats").innerHTML=kv("Lane",id)+kv("Strategy",l.name)+kv("Role",l.role)+kv("Latest equity",num(last.equity??1,5)+"x")+kv("Daily observations",s.length)+kv("Latest DD",num(last.drawdown_pct??0)+"%")+kv("Open positions",last.open_positions??0)+kv("Closed trades",last.closed_trades_cum??0);
+}
+document.querySelectorAll(".laneBtn").forEach(b=>b.onclick=()=>renderLane(b.dataset.lane));
+renderLane(selected);
+const allDates=live.lanes.flatMap(l=>l.series||[]).map(r=>r.date);
+if(usable.length)Plotly.newPlot("dailyReturnChart",usable.map(l=>curve(l,"daily_return_pct")),{...common,yaxis:{...common.yaxis,title:"Daily return %"}},{responsive:true,displaylogo:false});
+else document.getElementById("dailyReturnChart").innerHTML='<div class="empty">暂无正式日收益序列。</div>';
+const daily=live.lanes.flatMap(l=>(l.series||[]).map(r=>({...r,lane:l.id}))).sort((a,b)=>b.date.localeCompare(a.date)||a.lane.localeCompare(b.lane));
+document.getElementById("dailyTable").innerHTML=table(daily,[["Date",r=>r.date],["Lane",r=>r.lane],["Equity",r=>num(r.equity,5)],["Daily %",r=>num(r.daily_return_pct)],["DD %",r=>num(r.drawdown_pct)]]);
+document.getElementById("researchTable").innerHTML=table(research.lanes,[["Lane",r=>r.id],["BOX stage",r=>r.name],["Role",r=>r.role],["Research FWD",r=>num(r.research_forward_return_pct)+"%"],["Max DD",r=>num(r.research_forward_mdd_pct)+"%"]]);
+document.getElementById("systemGrid").innerHTML=[["Official EOD",live.official_daily_rows||0],["Latest market",live.last_processed_market_date||"PENDING"],["Signal boundary",live.official_signal_boundary],["Lane count",LANES.length],["Market trade events",live.official_trade_events||0],["Research cutoff",research.research_forward_end]].map(x=>'<div class="status"><span class="label">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("");
+document.getElementById("systemNote").textContent="Data snapshot "+live.generated_at_utc+" · Public display does not generate signals or fabricate equity rows.";
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("on"));
+ b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("on");
+ setTimeout(()=>window.dispatchEvent(new Event("resize")),40);
+});
+})().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
+</script>
+
 </body>
 </html>

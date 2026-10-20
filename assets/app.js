@@ -16,7 +16,7 @@ function table(rows,cols){
   '</tbody></table>';
 }
 (async()=>{
- const [d,p,bm,rf,fv4]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json()),fetch("data/frozen_v4_actual_forward.json?ts="+Date.now()).then(r=>r.json())]);
+ const [d,p,bm,rf]=await Promise.all([fetch("data/summary.json?ts="+Date.now()).then(r=>r.json()),fetch("data/strategy_performance.json?ts="+Date.now()).then(r=>r.json()),fetch("data/benchmarks.json?ts="+Date.now()).then(r=>r.json()),fetch("data/robust_forward.json?ts="+Date.now()).then(r=>r.json())]);
  $("#asof").textContent="PUBLIC · "+d.as_of;
  $("#topCards").innerHTML=[
   ["Production",d.production_strategy||"NONE","No Box strategy promoted yet"],
@@ -128,72 +128,40 @@ function table(rows,cols){
 
  const f=d.forward;
  $("#forwardCards").innerHTML=[
-   ["Frozen V4 freeze",rf.frozen_v4_freeze_date,"U.S. exchange-date convention"],
-   ["Display starts",rf.first_post_freeze_market_session,"First market session after freeze"],
+   ["BOX research-forward",rf.research_forward_start+" → "+rf.research_forward_end,"Preserved diagnostic window"],
    ["Robust lanes",rf.lanes.length,"FWD-01 through FWD-06"],
-   ["Pure prospective",rf.pure_prospective_signal_boundary,"No later-lane backdating"]
+   ["Pure prospective",rf.pure_prospective_signal_boundary,"Untouched Forward boundary"],
+   ["Earliest entry",rf.earliest_pure_prospective_entry,"Pure prospective execution"]
  ].map(x=>'<div class="card"><div class="label">'+x[0]+'</div><div class="value" style="font-size:19px">'+x[1]+'</div><div class="small">'+x[2]+'</div></div>').join("");
 
- const frozenActualTraces=fv4.account_lanes.map(x=>({
-   x:x.curve.date,
-   y:x.curve.equity,
-   name:x.id,
-   type:"scatter",
-   mode:"lines"
- }));
- Plotly.newPlot("frozenActualChart",frozenActualTraces,{
-   ...chartLayout,
-   yaxis:{...chartLayout.yaxis,title:"Equity (actual saved ledger)",tickformat:".3f"},
-   xaxis:{...chartLayout.xaxis,title:"U.S. market date"}
- },{responsive:true,displaylogo:false});
-
- $("#frozenActualTable").innerHTML=table(fv4.account_lanes,[
-   ["Lane",r=>r.id],
-   ["Return",r=>Number(r.return_pct).toFixed(2)+"%"],
-   ["Max DD",r=>Number(r.max_drawdown_pct).toFixed(2)+"%"],
-   ["Closed",r=>r.closed],
-   ["Open",r=>r.open],
-   ["Latest",r=>r.latest_date]
- ]);
-
- const robustTraces=rf.lanes.map(x=>({
-   x:x.series.map(z=>z.date),
-   y:x.series.map(z=>z.equity),
-   name:x.id+" · "+x.name,
-   type:"scatter",
-   mode:"lines"
- }));
+ const robustTraces=[{
+   x:rf.lanes.map(x=>x.id),
+   y:rf.lanes.map(x=>x.research_forward_return_pct),
+   text:rf.lanes.map(x=>x.name),
+   type:"bar",
+   hovertemplate:"%{x}<br>%{text}<br>Research-forward return: %{y:.2f}%<extra></extra>"
+ }];
  Plotly.newPlot("robustForwardChart",robustTraces,{
    ...chartLayout,
-   yaxis:{...chartLayout.yaxis,title:"Normalized equity",tickformat:".3f"},
-   xaxis:{...chartLayout.xaxis,title:"U.S. market date"},
-   shapes:[{
-     type:"line",x0:rf.pure_prospective_signal_boundary,x1:rf.pure_prospective_signal_boundary,
-     y0:0,y1:1,yref:"paper",line:{dash:"dot",width:1}
-   }],
-   annotations:[{
-     x:rf.pure_prospective_signal_boundary,y:1,yref:"paper",showarrow:false,
-     text:"Pure prospective →",xanchor:"left",yanchor:"bottom",font:{size:11}
-   }]
+   yaxis:{...chartLayout.yaxis,title:"Return % · 2026-04-01 → 2026-10-09",ticksuffix:"%"},
+   xaxis:{...chartLayout.xaxis,title:"BOX cumulative lane"}
  },{responsive:true,displaylogo:false});
 
  $("#robustForwardTable").innerHTML=table(rf.lanes,[
    ["Lane",r=>r.id],
-   ["System",r=>r.name],
-   ["V4-era return",r=>pct(r.era_replay_return)],
-   ["V4-era Max DD",r=>pct(r.era_replay_max_drawdown)],
-   ["Closed trades",r=>r.era_replay_closed_trades],
-   ["Pure prospective rows",r=>r.pure_prospective_rows],
-   ["Status",r=>badge(r.status)]
+   ["BOX system",r=>r.name],
+   ["Research-forward return",r=>Number(r.research_forward_return_pct).toFixed(2)+"%"],
+   ["Forward Max DD",r=>Number(r.research_forward_mdd_pct).toFixed(2)+"%"],
+   ["Forward Sharpe",r=>r.research_forward_sharpe==null?"—":Number(r.research_forward_sharpe).toFixed(2)],
+   ["Combined ending x",r=>r.combined_ending_x==null?"—":Number(r.combined_ending_x).toFixed(2)+"x"],
+   ["Evidence",r=>r.evidence]
  ]);
  $("#robustForwardBoundaryNote").innerHTML=
-   '<b>Important:</b> these FWD-01..FWD-06 lines are later Geometry/Capital/A2R/Sync-High systems replayed over Frozen-V4-era dates. They are <b>not</b> the original Frozen V4 live account ledger above.<br>'+
-   '<b>Replay origin:</b> '+rf.frozen_v4_freeze_date+
-   ' · first market session '+rf.first_post_freeze_market_session+
-   ' · reconstructed through '+rf.v4_era_replay_through+'.<br>'+
-   '<span class="small">'+rf.display_policy+'</span>';
+   '<b>BOX only.</b> Research-forward figures above use the preserved '+rf.research_forward_start+
+   ' → '+rf.research_forward_end+' BOX window. The +10%/+11% figures belong here.<br>'+
+   '<span class="small">'+rf.note+'</span>';
  $("#prospectiveBoundary").textContent=rf.pure_prospective_signal_boundary;
- $("#v4DisplayStart").textContent=rf.first_post_freeze_market_session;
+ $("#v4DisplayStart").textContent=rf.research_forward_start;
 
  const rp=d.recovered_programs||{};
  $("#recoveredPrograms").innerHTML=[

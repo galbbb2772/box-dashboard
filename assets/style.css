@@ -54,3 +54,17 @@ th{color:var(--muted);font-weight:700}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}.flow{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:820px){.chart{height:360px}.two,.three{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.wrap{padding:14px}.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}.value{font-size:22px}.metricgrid{grid-template-columns:1fr}}
+
+.chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.chart-controls{display:flex;gap:7px;flex-wrap:wrap}
+.rangebtn{border:1px solid #2b3850;background:#0d1420;color:#cad5e7;padding:7px 10px;border-radius:9px;min-height:36px;cursor:pointer;font:inherit}
+.rangebtn.active{background:#1a2a45;border-color:#5a7fc0;color:#fff}
+.chart-help{margin-top:6px}
+.interactive-chart{touch-action:pan-y}
+.interactive-chart .modebar{display:none!important}
+@media(max-width:520px){
+  .chart-head{display:block}
+  .chart-controls{margin-top:10px}
+  .rangebtn{min-width:58px;min-height:42px}
+  .interactive-chart{touch-action:pan-y}
+}

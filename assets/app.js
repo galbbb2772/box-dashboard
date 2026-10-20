@@ -149,6 +149,7 @@ function table(rows,cols){
 
  $("#robustForwardTable").innerHTML=table(rf.lanes,[
    ["Lane",r=>r.id],
+   ["Role",r=>r.role||"—"],
    ["BOX system",r=>r.name],
    ["Research-forward return",r=>Number(r.research_forward_return_pct).toFixed(2)+"%"],
    ["Forward Max DD",r=>Number(r.research_forward_mdd_pct).toFixed(2)+"%"],

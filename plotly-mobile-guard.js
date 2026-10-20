@@ -100,7 +100,7 @@
     btn.title = TOUCH_UI ? '手机端已锁定误触缩放；点此恢复所有图表视图' : '恢复所有图表的默认视图';
     btn.addEventListener('click', resetAllPlots);
     document.body.appendChild(btn);
-    loadBo50ExactOverlay();
+    // BOX has no Frozen V4 historical overlay.
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installUi, { once: true });

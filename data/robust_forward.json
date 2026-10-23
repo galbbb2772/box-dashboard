@@ -1,12 +1,12 @@
 {
   "schema": "BOX-ROBUST-FORWARD-PUBLIC-V2",
-  "generated_at_utc": "2026-10-20T01:10:00Z",
+  "generated_at_utc": "2026-10-23T02:55:00Z",
   "family": "BOX / Geometry V3 research stack",
   "research_forward_start": "2026-04-01",
   "research_forward_end": "2026-10-09",
   "pure_prospective_signal_boundary": "2026-10-19",
   "earliest_pure_prospective_entry": "2026-10-20",
-  "note": "BOX-only. The 2026-04-01..2026-10-09 window is the preserved research-forward diagnostic window. Later-discovered overlays are not relabeled as clean independent OOS. Pure prospective evidence begins at the 2026-10-19 signal boundary.",
+  "note": "BOX-only. The 2026-04-01..2026-10-09 window is the preserved research-forward diagnostic window. Later-discovered overlays are not relabeled as clean independent OOS. Historical daily curves were allocator-calibrated on 2026-10-23; pure prospective evidence begins at the 2026-10-19 signal boundary.",
   "lanes": [
     {
       "id": "FWD-01",
@@ -37,7 +37,7 @@
       "name": "+ SPY/QQQ/IWM Sync-High Shadow V2",
       "research_forward_return_pct": 10.632,
       "research_forward_mdd_pct": -5.7161,
-      "evidence": "saved daily curve",
+      "evidence": "exact saved Sync-High Shadow V2 daily curve",
       "role": "LINEAGE / SYNC-HIGH + TIERED A2R"
     },
     {
@@ -46,8 +46,8 @@
       "research_forward_return_pct": 11.2152884494,
       "research_forward_mdd_pct": -5.4723756524,
       "research_forward_sharpe": 1.8498287475,
-      "combined_ending_x": 11.0841935933,
-      "evidence": "exact event-driven replay",
+      "combined_ending_x": 11.084193593268846,
+      "evidence": "exact calibrated event-driven replay",
       "role": "PRIMARY ROBUST STACK"
     },
     {
@@ -56,9 +56,10 @@
       "research_forward_return_pct": 11.0871509253,
       "research_forward_mdd_pct": -5.4723756524,
       "research_forward_sharpe": 1.7687699816,
-      "combined_ending_x": 10.8209538283,
-      "evidence": "exact event-driven replay",
-      "role": "IMPLEMENTATION CHALLENGER"
+      "combined_ending_x": 10.82085947716564,
+      "evidence": "corrected calibrated event-driven replay; 2026-10-16 historical endpoint superseded by allocator-calibrated replay",
+      "role": "IMPLEMENTATION CHALLENGER",
+      "historical_ending_x": 9.740874067819362
     }
   ],
   "primary_robust_stack": "Geometry V3 RC1.1 + Capital Elasticity V1.1 + Sync-High Shadow Governor V2 + Deep-only A2R",

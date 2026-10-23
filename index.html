@@ -88,7 +88,7 @@ const [live,research,histmeta,...histlanes]=await Promise.all([
  fetch("data/robust_forward_live.json?x="+Date.now()).then(r=>{if(!r.ok)throw Error("live data HTTP "+r.status);return r.json()}),
  fetch("data/robust_forward.json?x="+Date.now()).then(r=>{if(!r.ok)throw Error("research data HTTP "+r.status);return r.json()}),
  fetch("data/historical_observation.json?x="+Date.now()).then(r=>{if(!r.ok)throw Error("historical observation HTTP "+r.status);return r.json()}),
- ...["FWD-01","FWD-02","FWD-03","FWD-04"].map(id=>fetch("data/history/"+id+".json?x="+Date.now()).then(r=>r.ok?r.json():null))
+ ...["FWD-01","FWD-02","FWD-03","FWD-04","FWD-05","FWD-06"].map(id=>fetch("data/history/"+id+".json?x="+Date.now()).then(r=>r.ok?r.json():null))
 ]);
 const LANES=live.lanes.map(l=>l.id), laneById=Object.fromEntries(live.lanes.map(l=>[l.id,l]));
 const histobs={...histmeta,lanes:histlanes.filter(Boolean)};
@@ -114,7 +114,7 @@ hero.className="badge warn";
 document.getElementById("topCards").innerHTML=[
  ["BOX Observation","2022 → 2026","Historical observation + 2026 Forward"],
  ["Prospective freeze",live.official_signal_boundary,"Earliest next-open "+live.earliest_official_entry],
- ["Historical curves",observationLanes.length,"Exact saved daily curves only"],
+ ["Historical curves",observationLanes.length,"Saved exact + event-replayed daily curves"],
  ["Latest market",live.last_processed_market_date||"PENDING","Public ledger"],
  ["Trade events",live.official_trade_events||0,"Official only"],
  ["2026 Forward",histobs.forward_start+" → "+histobs.forward_end,"Historical observation continuation"],

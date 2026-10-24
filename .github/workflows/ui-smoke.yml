@@ -57,6 +57,9 @@ jobs:
               assert 'id="'+eid+'"' in html, eid
           benchmarks=json.loads(Path("data/benchmarks.json").read_text())
           assert all(k in benchmarks["benchmarks"] for k in ["SPY","QQQ","DIA"])
+          audit=json.loads(Path("data/full_historical_audit.json").read_text())
+          assert audit["historical_start"]=="2019-01-02" and audit["initial_equity"]==1 and audit["historical_sessions"]==1821
+          assert len(audit["lanes"])==6
           print("Verified saved 4–10 month curves and",len(research["rows"]),"trade records.")
           PY
 
@@ -93,9 +96,10 @@ jobs:
               assert "2026-10-09" in page.locator("#historyActiveWindow").inner_text()
               assert "FWD-05" in page.locator("#historicalAllMetrics").inner_text()
               original=page.locator("#originalMultipleTable").inner_text()
-              assert "5.912" in original and "8.096" in original and "10.004" in original, original
-              assert "11.364" in original and "11.084" in original and "10.821" in original, original
-              assert "2022-01-03" in original and "2026-03-31" in original and "2026-10-09" in original
+              assert "5.9116" in original and "8.0956" in original and "10.0035" in original, original
+              assert "11.3644" in original and "11.0842" in original and "10.8209" in original, original
+              assert "2019-01-02" in original and "2026-03-31" in original and "2026-10-09" in original
+              assert "1.0000" in original and "37.37%" in original, original
               assert "全部可见数据" in page.locator('#historicalWindowPresets').inner_text()
               assert "CAGR" in page.locator("#historicalAllMetrics").inner_text()
               assert "SPY" in page.locator("#historyBenchmarkSummary").inner_text()

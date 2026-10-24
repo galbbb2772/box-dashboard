@@ -23,7 +23,7 @@
    yaxis:{gridcolor:"#273345"}
  };
  const chartConfig={responsive:true,displayModeBar:false,displaylogo:false,scrollZoom:false,doubleClick:false};
- let lanes=null, benchmarks=null, allDates=[], range=null, interacting=false, ready=false, lastSelected=null;
+ let lanes=null, benchmarks=null, allDates=[], range=null, interacting=false, ready=false, lastSelected=null, historicalAudit=null;
  const monthDays={"1M":30,"3M":91,"6M":183,"12M":365,"1Y":365,"2Y":730,"3Y":1096};
  async function load(path){
    const r=await fetch(path+"?v="+Date.now(),{cache:"no-store"});
@@ -171,21 +171,27 @@
      ' · 每条策略 '+cash(allDates.length)+' 个保存的净值观察点 · 早于 '+esc(start)+' 的完整逐日数据未导出到本网页 · 所选区间起点归一化为 1。';
  }
  function showOriginalMultipliers(){
-   // Two factual snapshots of the *same inherited global accounting base*.
-   // An early 2022 NAV > 1 proves this export is a truncated time window.
-   const histEnd="2026-03-31",end="2026-10-09",start="2022-01-03";
-   const heading=["策略","2022-01-03原始累计净值","历史阶段终点（2026-03-31）","含研究Forward终点（2026-10-09）","2022年起可见区间倍数"];
+   if(!historicalAudit||historicalAudit.historical_start!=="2019-01-02"||historicalAudit.historical_sessions!==1821)
+     throw Error("2019原始回测起点审计缺失");
+   const keys=new Map(historicalAudit.lanes.map(x=>[x.id,x]));
+   const heading=["策略","2019-01-02初始资金","2026-03-31历史终值","真正历史CAGR","2026-10-09含研究Forward终值","2019逐日原件"];
    const rows=lanes.map(l=>{
-     const b=l.byDate.get(start),h=l.byDate.get(histEnd),e=l.byDate.get(end);
-     if(!Number.isFinite(b)||!Number.isFinite(h)||!Number.isFinite(e))throw Error(l.id+" 缺少关键历史阶段端点");
-     if(b<=1)throw Error(l.id+" 首日原始倍率异常，须核对基准");
-     return [l.id,fmt(b,3)+"×",fmt(h,3)+"×",fmt(e,3)+"×",fmt(e/b,3)+"×"];
+     const a=keys.get(l.id);
+     if(!a || !Number.isFinite(a.historical_end_x) || !Number.isFinite(a.historical_cagr_pct))
+       throw Error("缺失原始2019历史统计："+l.id);
+     const savedEnd=l.byDate.get("2026-10-09");
+     if(!Number.isFinite(savedEnd)||Math.abs(savedEnd/a.combined_research_end_x-1)>0.0001)
+       throw Error("截至2026-10-09存档历史曲线与2019回测收据不一致："+l.id);
+     return [l.id,"1.0000×",fmt(a.historical_end_x,4)+"×",
+       percent(a.historical_cagr_pct),fmt(a.combined_research_end_x,4)+"×",
+       a.full_2019_daily_source_available?"已找到，尚待接入折线":"尚缺，禁止插值"];
    });
    $("#originalMultipleTable").innerHTML=
-     '<table><thead><tr>'+heading.map(v=>'<th>'+v+'</th>').join("")+'</tr></thead><tbody>'+
+     '<div class="small">原始回测：2019-01-02 → 2026-03-31，1,821个历史交易日；初始资本1.0000。 CAGR使用完整7.24日历年计算（ACT/365.2425）。研究Forward 2026-04-01 → 2026-10-09，另有133个交易日。</div>'+
+     '<table><thead><tr>'+heading.map(v=>'<th>'+esc(v)+'</th>').join("")+'</tr></thead><tbody>'+
      rows.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
  }
- function setButtons(selected){
+  function setButtons(selected){
    $$("#historicalWindowPresets button").forEach(b=>b.classList.toggle("active",b.dataset.period===selected));
  }
  function constrainDateInputs(){
@@ -323,9 +329,9 @@
    }));
  }
  bind();
- Promise.all([...laneIds.map(x=>load("data/history/"+x+".json")),load("data/benchmarks.json")]).then(async raw=>{
+ Promise.all([...laneIds.map(x=>load("data/history/"+x+".json")),load("data/benchmarks.json"),load("data/full_historical_audit.json")]).then(async raw=>{
    lanes=raw.slice(0,6).map(decode);
-   benchmarks=raw[6];
+   benchmarks=raw[6];historicalAudit=raw[7];
    if(JSON.stringify(lanes.map(l=>l.id))!==JSON.stringify(laneIds))throw Error("六条策略身份与顺序异常");
    // Use the intersection so all six lineages are compared on truly matching trade dates.
    allDates=lanes[0].series.map(x=>x.date).filter(date=>lanes.every(l=>l.byDate.has(date)));

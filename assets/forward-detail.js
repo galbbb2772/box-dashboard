@@ -69,6 +69,36 @@
         hovertemplate:"%{x}<br>%{fullData.name}<br>研究期累计收益 %{y:.2f}%<extra></extra>"};
     });
   }
+  function nativeSvgChart(selector,traces,title) {
+    const width=1100,height=430,pad={left:68,right:18,top:48,bottom:48};
+    const points=traces.flatMap(t=>t.x.map((date,i)=>({x:Date.parse(date),y:Number(t.y[i])}))).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
+    const el=$(selector);
+    if(!el)return;
+    if(!points.length){el.innerHTML='<div class="empty">暂无可验证的时间序列</div>';return}
+    const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+    let xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
+    if(xmax<=xmin)xmax=xmin+86400000;
+    const range=(ymax-ymin)||1;ymin-=range*0.12;ymax+=range*0.12;
+    const X=x=>pad.left+(x-xmin)/(xmax-xmin)*(width-pad.left-pad.right);
+    const Y=y=>height-pad.bottom-(y-ymin)/(ymax-ymin)*(height-pad.top-pad.bottom);
+    const grid=Array.from({length:6},(_,i)=>{
+      const y=ymin+(ymax-ymin)*i/5;
+      return '<line x1="'+pad.left+'" x2="'+(width-pad.right)+'" y1="'+Y(y)+'" y2="'+Y(y)+'" stroke="#29364a"/>'+
+        '<text x="'+(pad.left-10)+'" y="'+(Y(y)+4)+'" fill="#99a8bd" text-anchor="end" font-size="13">'+y.toFixed(1)+'%</text>';
+    }).join("");
+    const paths=traces.map((t,i)=>{
+      const d=t.x.map((date,j)=>[Date.parse(date),Number(t.y[j])]).filter(p=>p.every(Number.isFinite)).map((p,j)=>(j===0?'M':'L')+X(p[0]).toFixed(2)+','+Y(p[1]).toFixed(2)).join(' ');
+      return '<path d="'+d+'" fill="none" stroke="'+colors[i]+'" stroke-width="2.7"/>'+
+        '<text x="'+(pad.left+i*144)+'" y="34" fill="'+colors[i]+'" font-size="15">'+esc(t.name)+'</text>';
+    }).join("");
+    const dateText=ms=>new Date(ms).toISOString().slice(0,10);
+    const svg='<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+esc(title)+'" style="width:100%;height:auto;max-height:460px">'+
+      grid+paths+'<text x="'+pad.left+'" y="'+(height-12)+'" fill="#a8b5c9" font-size="14">'+dateText(xmin)+'</text>'+
+      '<text x="'+(width-pad.right)+'" y="'+(height-12)+'" text-anchor="end" fill="#a8b5c9" font-size="14">'+dateText(xmax)+'</text>'+
+      '</svg>';
+    el.innerHTML=svg+'<p class="small">原生日线 SVG 曲线（Plotly 未加载）。折线来自保存的真实日期及净值点，不使用插值补点。</p>';
+  }
+
   function prospectiveTraces(live){
     return (live.lanes||[]).map((l,i)=>({
       x:(l.series||[]).map(r=>r.date),y:(l.series||[]).map(r=>100*(Number(r.equity)-1)),
@@ -77,7 +107,7 @@
     }));
   }
   async function renderResearch(){
-    if(!researchSet || typeof Plotly==="undefined")return;
+    if(!researchSet)return;
     const panel=$("#timeline");
     if(!panel || !panel.classList.contains("on"))return;
     const {lanes,live}=researchSet;
@@ -91,7 +121,9 @@
       '<div class="metric"><span class="small">正式交易事件</span><b>'+esc(live.official_trade_events||0)+'</b></div>'+
       '</div>';
     const traces=researchTraces(lanes,curveMode);
-    await Plotly.react("researchTimelineChart",traces,{...chartBase,
+    if(typeof Plotly==="undefined") {
+      nativeSvgChart("#researchTimelineChart",traces,"2026年4月—10月9日 BOX 六策略研究曲线");
+    } else await Plotly.react("researchTimelineChart",traces,{...chartBase,
       title:{text:"2026年4月—10月9日 · 六策略每日累计收益（研究期）",font:{size:15}},
       yaxis:{...chartBase.yaxis,title:"累计收益 %（以3月31日净值为基准）",ticksuffix:"%"},
       xaxis:{...chartBase.xaxis,title:"美股交易日"}
@@ -99,7 +131,9 @@
     const official=prospectiveTraces(live);
     const visible=official.some(t=>t.x.length>=2);
     if(visible){
-      await Plotly.react("prospectiveTimelineChart",official,{...chartBase,
+      if(typeof Plotly==="undefined") {
+        nativeSvgChart("#prospectiveTimelineChart",official,"2026年10月19日后正式纸面 Forward");
+      } else await Plotly.react("prospectiveTimelineChart",official,{...chartBase,
         title:{text:"2026年10月19日以后 · 正式 Forward OOS（独立归一化）",font:{size:15}},
         yaxis:{...chartBase.yaxis,title:"累计收益 %（10月19日 = 0%）",ticksuffix:"%"},
         xaxis:{...chartBase.xaxis,title:"美股交易日"}

@@ -90,9 +90,15 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
    <div class="small">只计算冻结后真实观测。当前数据源可能存在 T+1 或订阅延迟；每条策略的净值以 10 月 19 日归一化为 1.0000，与上面的研究曲线不混算。</div>
    <div id="prospectiveTimelineChart" class="chart" style="height:360px"></div>
  </div>
+  <div class="section card" id="historicalMultipliers">
+    <h2>原始历史累计倍数 · 5× / 7× / 9× / 10× / 11× 是什么？</h2>
+    <div class="note">原始历史曲线在 2022-01-03 的净值就<strong>不是1</strong>，意味着当前导出的曲线只是全程累计曲线的一部分。<b>原始累计倍数</b>与<b>2022年起重置为1的区间收益</b>不能混为一谈；下方分别展示 2026-03-31 历史阶段终点与 2026-10-09 加入研究 Forward 后的原始终点。<strong>原始起算日期尚需完整账本确认；本页不把2022年冒充策略真正起点。</strong></div>
+    <div id="originalMultipleTable" class="section tablewrap"><div class="empty">正在核对原始历史倍数……</div></div>
+    <div class="small section">原始倍率是已保存历史模拟/回放净值，不能代表真实账户已赚到相同倍数。研究 Forward 2026-04-01至10-09 不是严格的独立前瞻样本。FWD-05/06历史回放存在已记录的小幅校准差异。</div>
+  </div>
   <div class="section card" id="historicalAnalytics">
-    <h2>完整历史研究 · 六策略净值与累计收益率</h2>
-    <div class="note">历史观察为 2022 年开始的研究/回放，不等于 2026 年 10 月冻结后独立 Forward OOS。原始净值文件保留不变；下方的两个图表均以<strong>所选区间首个实际观察交易日 = 1.0000</strong> 为基准。净值曲线与累计收益曲线均不添加虚构行情。</div>
+    <h2>当前可见历史研究 · 六策略净值与累计收益率</h2>
+    <div class="note">当前仅保存并展示自 2022-01-03 至 2026-10-09 的观察片段，更早阶段需要恢复完整逐日历史数据；这不是策略全部历史，也不等于 2026 年 10 月冻结后独立 Forward OOS。原始净值文件保留不变；下方的两个图表均以<strong>所选区间首个实际观察交易日 = 1.0000</strong> 为基准。净值曲线与累计收益曲线均不添加虚构行情。</div>
     <div class="small section" id="historicalCoverage">读取已保存六条策略历史数据……</div>
     <div class="range section" id="historicalWindowPresets" style="display:flex;gap:7px;flex-wrap:wrap">
       <button data-period="1M">1个月</button>
@@ -102,7 +108,7 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
       <button data-period="1Y">1年</button>
       <button data-period="2Y">2年</button>
       <button data-period="3Y">3年</button>
-      <button data-period="ALL" class="active">全部历史</button>
+      <button data-period="ALL" class="active">全部可见数据（2022年起）</button>
     </div>
     <div class="section" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <label for="historyStart" class="small">开始日期</label>
@@ -125,9 +131,9 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
     <div class="note section">*“上涨日占比” = 上涨日 ÷（上涨日 + 下跌日），不是逐笔交易胜率；“日收益期望” = 相邻观察日日收益简单平均值；Sharpe 使用日收益标准差、√252年化和零无风险利率假设。盈利/亏损连续段统计连续上涨/下跌日，不是逐笔仓位或成交段。实际下单日期、实际在仓日和交易级胜率/期望值需要逐笔成交与持仓流水，目前不能从净值曲线可靠反推。</div>
   </div>
   <div class="section card">
-    <h2>六策略 · 全部历史统计（不随区间切换而变化）</h2>
+    <h2>六策略 · 当前可见历史段统计（2022年以来，不随区间切换而变化）</h2>
     <div id="historicalAllMetrics" class="tablewrap section"><div class="empty">计算中……</div></div>
-    <div class="small section">CAGR 使用完整历史区间的实际日历时间计算年复利；最大回撤为区间内净值相对先前最高净值的最大跌幅；最差单日代表相邻两个观察交易日的最差净值变化。没有假定策略始终满仓。</div>
+    <div class="small section">CAGR 仅针对2022-01-03至2026-10-09的可见片段，使用该区间实际日历时间计算年复利；这不是原策略完整历史CAGR；最大回撤为区间内净值相对先前最高净值的最大跌幅；最差单日代表相邻两个观察交易日的最差净值变化。没有假定策略始终满仓。</div>
   </div>
   <div class="section card">
     <h2>六条策略 vs 三大指数 · 有数据的共同交易日</h2>

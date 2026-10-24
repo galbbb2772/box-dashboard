@@ -83,13 +83,57 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
       <button data-period="1M">研究期最后1个月</button>
    </div>
    <div id="researchTimelineChart" class="chart" style="height:520px"></div>
-   <div class="small">研究期每日数据来自已保存的六条 FWD 曲线文件，不是按期末收益插值。收益以 2026-03-31 净值作为基准，仅表示研究观察，不等于真实账户交易记录。</div>
+   <div class="small">研究期每日数据来自六条已保存的 FWD 曲线文件，不是按期末收益插值。所选研究区间首日净值归一化为1；仅表示研究观察，不等于真实账户交易记录。</div>
  </div>
  <div class="section card">
    <h2>正式 Forward OOS · 2026年10月19日起</h2>
-   <div class="small">只计算冻结后真实观测。当前数据源可能存在 T+1 或订阅延迟；每条策略的累计收益以 10 月 19 日归一化为 0%，与上面的研究曲线不混算。</div>
+   <div class="small">只计算冻结后真实观测。当前数据源可能存在 T+1 或订阅延迟；每条策略的净值以 10 月 19 日归一化为 1.0000，与上面的研究曲线不混算。</div>
    <div id="prospectiveTimelineChart" class="chart" style="height:360px"></div>
  </div>
+  <div class="section card" id="historicalAnalytics">
+    <h2>完整历史研究 · 六策略净值与累计收益率</h2>
+    <div class="note">历史观察为 2022 年开始的研究/回放，不等于 2026 年 10 月冻结后独立 Forward OOS。原始净值文件保留不变；下方的两个图表均以<strong>所选区间首个实际观察交易日 = 1.0000</strong> 为基准。净值曲线与累计收益曲线均不添加虚构行情。</div>
+    <div class="small section" id="historicalCoverage">读取已保存六条策略历史数据……</div>
+    <div class="range section" id="historicalWindowPresets" style="display:flex;gap:7px;flex-wrap:wrap">
+      <button data-period="1M">1个月</button>
+      <button data-period="3M">3个月</button>
+      <button data-period="6M">6个月</button>
+      <button data-period="12M">12个月</button>
+      <button data-period="1Y">1年</button>
+      <button data-period="2Y">2年</button>
+      <button data-period="3Y">3年</button>
+      <button data-period="ALL" class="active">全部历史</button>
+    </div>
+    <div class="section" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <label for="historyStart" class="small">开始日期</label>
+      <input id="historyStart" type="date" style="background:#131b28;color:#fff;border:1px solid #394961;border-radius:8px;padding:8px">
+      <label for="historyEnd" class="small">结束日期</label>
+      <input id="historyEnd" type="date" style="background:#131b28;color:#fff;border:1px solid #394961;border-radius:8px;padding:8px">
+      <button id="historyApply" style="padding:9px 14px;background:#1b3150;color:#fff;border:1px solid #597bad;border-radius:9px">应用所选时间</button>
+      <span id="historyActiveWindow" class="small">正在准备历史区间</span>
+    </div>
+    <div id="historySelectionError" class="small bad section" role="alert"></div>
+    <h2 class="section">历史净值曲线 · 起点 1.0000</h2>
+    <div id="historyEquityChart" class="chart" style="height:485px"></div>
+    <h2 class="section">历史累计收益率曲线 · 起点 0%</h2>
+    <div id="historyReturnChart" class="chart" style="height:440px"></div>
+    <div class="small section">支持鼠标和触控拖动（使用 Plotly 时），可选择自定义起止日期；缩放和拖动严格限制在已保存的历史观察日内，最少显示连续10个观察点，无法无限放大或滑出数据边界。</div>
+  </div>
+  <div class="section card">
+    <h2>六策略 · 所选时间区间统计</h2>
+    <div id="historicalSelectionMetrics" class="tablewrap section"><div class="empty">读取中……</div></div>
+    <div class="note section">*“上涨日占比” = 上涨日 ÷（上涨日 + 下跌日），不是逐笔交易胜率；“日收益期望” = 有记录的相邻观察日日收益简单平均值。实际下单日期和交易级胜率、交易级期望值需要六策略逐笔成交流水，尚不能从净值曲线可靠反推。净值变动日不等同于实际交易日；没有证据时不填写虚假交易次数。</div>
+  </div>
+  <div class="section card">
+    <h2>六策略 · 全部历史统计（不随区间切换而变化）</h2>
+    <div id="historicalAllMetrics" class="tablewrap section"><div class="empty">计算中……</div></div>
+    <div class="small section">CAGR 使用完整历史区间的实际日历时间计算年复利；最大回撤为区间内净值相对先前最高净值的最大跌幅；最差单日代表相邻两个观察交易日的最差净值变化。没有假定策略始终满仓。</div>
+  </div>
+  <div class="section card">
+    <h2>六条策略 vs 三大指数 · 有数据的共同交易日</h2>
+    <div id="historyBenchmarkChart" class="chart" style="height:440px"></div>
+    <div id="historyBenchmarkSummary" class="section"><div class="empty">核对 SPY、QQQ、DIA 数据覆盖范围……</div></div>
+  </div>
 </section>
 <section id="trades" class="panel">
   <div class="card">
@@ -112,7 +156,7 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
     <div class="small section">此处为冻结策略的纸面交易事件，不代表已向真实券商下单。只有 GitHub 正式账本出现新事件才会增加记录。</div>
   </div>
 </section>
-<section id="live" class="panel"><div class="two"><div class="card"><div class="label">BOX · Six-lane Prospective Forward Equity</div><div id="liveEquity" class="chart"></div></div><div class="card"><div class="label">Forward snapshot</div><div id="regimeSnapshot"></div></div></div><div class="section card"><div class="label">六条 BOX 策略 · 最新状态</div><div id="laneOverview" class="tablewrap"></div></div></section>
+<section id="live" class="panel"><div class="two"><div class="card"><div class="label">BOX · Official prospective paper Forward equity (normalized=1, Oct 19)</div><div id="liveEquity" class="chart"></div></div><div class="card"><div class="label">Forward snapshot</div><div id="regimeSnapshot"></div></div></div><div class="section card"><div class="label">六条 BOX 策略 · 最新状态</div><div id="laneOverview" class="tablewrap"></div></div></section>
 <section id="oos" class="panel"><div class="two"><div class="card"><div class="label">Forward OOS Equity</div><div class="range section" id="laneButtons"></div><div id="oosEquity" class="chart"></div></div><div class="card"><div class="label">Selected lane metrics</div><div id="laneStats"></div></div></div></section>
 <section id="daily" class="panel"><div class="card"><div class="label">Forward Daily Returns · all lanes</div><div id="dailyReturnChart" class="chart"></div></div><div class="section card"><div class="label">Daily Equity / Drawdown Ledger</div><div id="dailyTable" class="tablewrap"></div></div></section>
 <section id="research" class="panel"><div class="card"><div class="label">BOX research-forward · 2026-04-01 to 2026-10-09</div><div id="researchTable" class="tablewrap"></div><div class="note section">此窗口为研究 Forward，不作为后来各层的独立 Prospective OOS。</div></div></section>
@@ -165,15 +209,10 @@ document.getElementById("topCards").innerHTML=[
 ].map(x=>'<div class="card"><div class="label">'+esc(x[0])+'</div><div class="value">'+esc(x[1])+'</div><div class="small">'+esc(x[2])+'</div></div>').join("");
 const curve=(l,key,scale=1)=>({x:(l.series||[]).map(r=>r.date),y:(l.series||[]).map(r=>Number(r[key]??0)*scale),name:l.id,type:"scatter",mode:"lines"});
 const liveById=Object.fromEntries(live.lanes.map(l=>[l.id,l]));
-const stitched=observationLanes.map(l=>{
- const base=(l.series||[]).slice();
- const tail=liveById[l.id]?.series||[];
- if(!base.length||!tail.length)return {...l,series:base};
- const anchor=Number(base.at(-1).equity||1), live0=Number(tail[0].equity||1);
- const extra=tail.filter(r=>r.date>base.at(-1).date).map(r=>({...r,equity:anchor*Number(r.equity||1)/live0,segment:"prospective_oos"}));
- return {...l,series:base.concat(extra)};
-});
-const usable=stitched.filter(l=>(l.series||[]).length>=2);
+// Live view contains only official prospective paper data; old 2022–2026
+// research curves are displayed in the separate historical panel.
+const usable=live.lanes.filter(l=>(l.series||[]).length>=2);
+
 if(usable.length){
  Plotly.newPlot("liveEquity",usable.map(l=>curve(l,"equity")),{...common,yaxis:{...common.yaxis,title:"Equity multiple"}},{responsive:true,displaylogo:false});
 }else document.getElementById("liveEquity").innerHTML='<div class="empty">Forward OOS 已初始化，但只有起始净值点。等待至少第二条正式 EOD 记录后显示六条净值曲线；不会伪造数据。</div>';
@@ -207,7 +246,8 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 });
 })().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
 </script>
-<script src="assets/forward-detail.js?v=20261024-1"></script>
+<script src="assets/forward-detail.js?v=20261024-3"></script>
+<script src="assets/historical-analytics.js?v=20261024-1"></script>
 
 </body>
 </html>

@@ -5,6 +5,6 @@
   "as_of_market_date": "2026-10-22",
   "count": 0,
   "time_precision": "EOD/daily only; no broker fill timestamps",
-  "note": "Official prospective paper Forward events only; not real broker transactions. No event has yet been recorded.",
+  "note": "Only official prospective paper Forward events; not broker transactions.",
   "rows": []
 }

@@ -107,6 +107,19 @@
       profitablePeriods,losingPeriods,maxWinStreak,maxLossStreak,
       tradeDays:null,trades:null,tradeExpectancy:null,tradeWinRate:null};
  }
+ function attachRecoveredPrefix(l,prefix){
+   if(!prefix || !prefix.dates || !prefix.equity?.[l.id])return l;
+   const values=prefix.equity[l.id];
+   if(values.length!==prefix.dates.length)throw Error("恢复前缀长度不匹配："+l.id);
+   const pre=prefix.dates.map((date,i)=>({date,equity:Number(values[i])}));
+   if(!pre.length)return l;
+   if(pre[0].date!=="2019-01-02" || Math.abs(pre[0].equity-1)>1e-12)
+     throw Error("2019恢复曲线没有从1.0000开始："+l.id);
+   if(pre.at(-1).date>=l.series[0].date)throw Error("恢复前缀与现有曲线日期重叠："+l.id);
+   const series=pre.concat(l.series);
+   for(let i=1;i<series.length;i++)if(series[i].date<=series[i-1].date)throw Error("拼接后日期异常："+l.id);
+   return {...l,series,byDate:new Map(series.map(x=>[x.date,x.equity])),recoveredStart:pre[0].date,recoveredPrefixCount:pre.length};
+ }
  function rowFor(l,dates){
    const first=dates[0],last=dates.at(-1);
    const obs=l.series.filter(x=>x.date>=first&&x.date<=last);
@@ -167,8 +180,9 @@
  function marksAndRatio(){
    const start=allDates[0],end=allDates.at(-1);
    $("#historicalCoverage").innerHTML=
-     '<b>当前可见历史片段：</b>'+esc(start)+' → '+esc(end)+
-     ' · 每条策略 '+cash(allDates.length)+' 个保存的净值观察点 · 早于 '+esc(start)+' 的完整逐日数据未导出到本网页 · 所选区间起点归一化为 1。';
+     '<b>当前曲线可见范围：</b>'+esc(start)+' → '+esc(end)+
+     ' · FWD-01～04 已接入2019-01-02起的真实逐日历史；FWD-05/06因2019–2021逐日原件仍缺，曲线暂从2022-01-03开始。'+
+     ' · 图表不会为缺失时期插值。所选区间内各策略各自从首个真实观察点归一化为1。';
  }
  function showOriginalMultipliers(){
    if(!historicalAudit||historicalAudit.historical_start!=="2019-01-02"||historicalAudit.historical_sessions!==1821)
@@ -184,7 +198,7 @@
        throw Error("截至2026-10-09存档历史曲线与2019回测收据不一致："+l.id);
      return [l.id,"1.0000×",fmt(a.historical_end_x,4)+"×",
        percent(a.historical_cagr_pct),fmt(a.combined_research_end_x,4)+"×",
-       a.full_2019_daily_source_available?"已找到，尚待接入折线":"尚缺，禁止插值"];
+       a.full_2019_daily_source_available?"已接入2019逐日折线":"尚缺，禁止插值"];
    });
    $("#originalMultipleTable").innerHTML=
      '<div class="small">原始回测：2019-01-02 → 2026-03-31，1,821个历史交易日；初始资本1.0000。 CAGR使用完整7.24日历年计算（ACT/365.2425）。研究Forward 2026-04-01 → 2026-10-09，另有133个交易日。</div>'+
@@ -329,16 +343,20 @@
    }));
  }
  bind();
- Promise.all([...laneIds.map(x=>load("data/history/"+x+".json")),load("data/benchmarks.json"),load("data/full_historical_audit.json")]).then(async raw=>{
+ Promise.all([...laneIds.map(x=>load("data/history/"+x+".json")),load("data/benchmarks.json"),load("data/full_historical_audit.json"),load("data/history_prefix_2019_2021.json")]).then(async raw=>{
    lanes=raw.slice(0,6).map(decode);
    benchmarks=raw[6];historicalAudit=raw[7];
+   const prefix=raw[8];
    if(JSON.stringify(lanes.map(l=>l.id))!==JSON.stringify(laneIds))throw Error("六条策略身份与顺序异常");
-   // Use the intersection so all six lineages are compared on truly matching trade dates.
-   allDates=lanes[0].series.map(x=>x.date).filter(date=>lanes.every(l=>l.byDate.has(date)));
-   if(allDates.length<MIN_POINTS)throw Error("六条策略共同有效的历史观察日不足10天");
+   lanes=lanes.map(l=>["FWD-01","FWD-02","FWD-03","FWD-04"].includes(l.id)?attachRecoveredPrefix(l,prefix):l);
+   if(lanes.slice(0,4).some(l=>l.series[0].date!=="2019-01-02"))throw Error("FWD-01～04未真正接入2019曲线");
+   // Navigation uses the longest verified daily lane. Shorter lanes simply begin
+   // at their own first verified observation; missing history is never interpolated.
+   allDates=lanes[0].series.map(x=>x.date);
+   if(allDates.length<1800)throw Error("恢复后的历史观察点异常偏少");
    marksAndRatio();showOriginalMultipliers();constrainDateInputs();
    const fullRows=lanes.map(l=>rowFor(l,allDates));
-   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"当前导出的可见历史片段：2022年首个有效交易日至2026-10-09；并非原始策略完整回测期");
+   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"当前可验证逐日曲线：FWD-01～04为2019-01-02起；FWD-05/06暂为2022-01-03起。表内起止日就是每条线真正有数据的范围。");
    benchmarkComparison();
    await render(allDates[0],allDates.at(-1),"ALL");
    ready=true;

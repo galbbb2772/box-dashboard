@@ -122,7 +122,7 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
   <div class="section card">
     <h2>六策略 · 所选时间区间统计</h2>
     <div id="historicalSelectionMetrics" class="tablewrap section"><div class="empty">读取中……</div></div>
-    <div class="note section">*“上涨日占比” = 上涨日 ÷（上涨日 + 下跌日），不是逐笔交易胜率；“日收益期望” = 有记录的相邻观察日日收益简单平均值。实际下单日期和交易级胜率、交易级期望值需要六策略逐笔成交流水，尚不能从净值曲线可靠反推。净值变动日不等同于实际交易日；没有证据时不填写虚假交易次数。</div>
+    <div class="note section">*“上涨日占比” = 上涨日 ÷（上涨日 + 下跌日），不是逐笔交易胜率；“日收益期望” = 相邻观察日日收益简单平均值；Sharpe 使用日收益标准差、√252年化和零无风险利率假设。盈利/亏损连续段统计连续上涨/下跌日，不是逐笔仓位或成交段。实际下单日期、实际在仓日和交易级胜率/期望值需要逐笔成交与持仓流水，目前不能从净值曲线可靠反推。</div>
   </div>
   <div class="section card">
     <h2>六策略 · 全部历史统计（不随区间切换而变化）</h2>

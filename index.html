@@ -64,13 +64,55 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
 <div class="grid" id="topCards"></div>
 
 <div class="tabs">
-<button class="active" data-tab="live">实盘总览</button>
+<button class="active" data-tab="timeline">4月→至今曲线</button>
+<button data-tab="trades">逐笔交易</button>
+<button data-tab="live">实盘总览</button>
 <button data-tab="oos">Forward OOS</button>
 <button data-tab="daily">日收益</button>
 <button data-tab="research">研究 Forward</button>
 <button data-tab="system">系统状态</button>
 </div>
-<section id="live" class="panel on"><div class="two"><div class="card"><div class="label">BOX · Six-lane Prospective Forward Equity</div><div id="liveEquity" class="chart"></div></div><div class="card"><div class="label">Forward snapshot</div><div id="regimeSnapshot"></div></div></div><div class="section card"><div class="label">六条 BOX 策略 · 最新状态</div><div id="laneOverview" class="tablewrap"></div></div></section>
+<section id="timeline" class="panel on">
+ <div class="card">
+   <h2 style="margin-bottom:8px">2026年4月—至今 · BOX 六策略收益曲线</h2>
+   <div class="note">数据严格分段：2026-04-01 至 2026-10-09 是<strong>历史研究 Forward</strong>（非冻结后的独立样本）；2026-10-19 起才是<strong>正式前瞻纸面 Forward</strong>。两段分别绘图，绝不跨越中间缺失日期连线，也不制造不存在的交易。</div>
+   <div id="timelineMeta" class="section"></div>
+   <div id="timelineRange" class="range section" style="display:flex;gap:8px">
+      <button class="active" data-period="ALL">4月以来全部</button>
+      <button data-period="3M">研究期最后3个月</button>
+      <button data-period="1M">研究期最后1个月</button>
+   </div>
+   <div id="researchTimelineChart" class="chart" style="height:520px"></div>
+   <div class="small">研究期每日数据来自已保存的六条 FWD 曲线文件，不是按期末收益插值。收益以 2026-03-31 净值作为基准，仅表示研究观察，不等于真实账户交易记录。</div>
+ </div>
+ <div class="section card">
+   <h2>正式 Forward OOS · 2026年10月19日起</h2>
+   <div class="small">只计算冻结后真实观测。当前数据源可能存在 T+1 或订阅延迟；每条策略的累计收益以 10 月 19 日归一化为 0%，与上面的研究曲线不混算。</div>
+   <div id="prospectiveTimelineChart" class="chart" style="height:360px"></div>
+ </div>
+</section>
+<section id="trades" class="panel">
+  <div class="card">
+   <h2>逐笔交易明细 · 单独交易单</h2>
+   <div class="note">以下逐笔记录分为<strong>研究回测交易</strong>与<strong>正式 Forward 纸面事件</strong>。Top300 / Top500 是两个独立研究宇宙，有重复股票，不可合计为唯一实际成交次数。所有时间仅精确到美股交易日；源数据没有盘中成交时分。该网页公开可读。</div>
+   <div id="tradeSummary" class="section"></div>
+   <h2 class="section">研究交易 · Simple Core Transport V17（2026年4月—10月）</h2>
+   <div class="range section" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <label for="tradeUniverse" class="small">策略宇宙</label><select id="tradeUniverse" style="padding:9px;background:#131b28;color:#fff;border:1px solid #35425a;border-radius:7px"><option value="ALL">Top300 + Top500</option><option value="Top300">Top300</option><option value="Top500">Top500</option></select>
+      <label for="tradeScale" class="small">箱体种类</label><select id="tradeScale" style="padding:9px;background:#131b28;color:#fff;border:1px solid #35425a;border-radius:7px"><option value="ALL">全部</option><option value="小箱体">小箱体</option><option value="大箱体">大箱体</option></select>
+      <label for="tradeSearch" class="small">交易标的</label><input id="tradeSearch" type="search" placeholder="搜索代码，如 AAPL" style="padding:9px;background:#131b28;color:#fff;border:1px solid #35425a;border-radius:7px;min-width:170px">
+      <button id="downloadResearchTrades" style="padding:9px 12px;background:#17324d;color:#fff;border:1px solid #426188;border-radius:7px">导出 CSV</button>
+   </div>
+   <div id="researchTradeTable" class="tablewrap section"><div class="empty">正在读取真实研究交易记录……</div></div>
+   <div class="small section">价格与收益仅引用研究 CSV。原文件没有卖出价格字段时显示「—」，不推算成交价。ETF 仅在可识别时标注，其余证券类型待逐项核实；小箱体与大箱体属于箱体策略类型。</div>
+  </div>
+  <div class="section card">
+    <h2>正式前瞻 Forward · FWD-01～FWD-06 交易事件</h2>
+    <div id="officialTradeTable" class="tablewrap"><div class="empty">加载正式 Forward 交易事件……</div></div>
+    <div class="small section">此处为冻结策略的纸面交易事件，不代表已向真实券商下单。只有 GitHub 正式账本出现新事件才会增加记录。</div>
+  </div>
+</section>
+<section id="live" class="panel"><div class="two"><div class="card"><div class="label">BOX · Six-lane Prospective Forward Equity</div><div id="liveEquity" class="chart"></div></div><div class="card"><div class="label">Forward snapshot</div><div id="regimeSnapshot"></div></div></div><div class="section card"><div class="label">六条 BOX 策略 · 最新状态</div><div id="laneOverview" class="tablewrap"></div></div></section>
 <section id="oos" class="panel"><div class="two"><div class="card"><div class="label">Forward OOS Equity</div><div class="range section" id="laneButtons"></div><div id="oosEquity" class="chart"></div></div><div class="card"><div class="label">Selected lane metrics</div><div id="laneStats"></div></div></div></section>
 <section id="daily" class="panel"><div class="card"><div class="label">Forward Daily Returns · all lanes</div><div id="dailyReturnChart" class="chart"></div></div><div class="section card"><div class="label">Daily Equity / Drawdown Ledger</div><div id="dailyTable" class="tablewrap"></div></div></section>
 <section id="research" class="panel"><div class="card"><div class="label">BOX research-forward · 2026-04-01 to 2026-10-09</div><div id="researchTable" class="tablewrap"></div><div class="note section">此窗口为研究 Forward，不作为后来各层的独立 Prospective OOS。</div></div></section>
@@ -165,6 +207,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 });
 })().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
 </script>
+<script src="assets/forward-detail.js?v=20261024-1"></script>
 
 </body>
 </html>

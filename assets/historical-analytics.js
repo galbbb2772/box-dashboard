@@ -298,7 +298,10 @@
    // Use the intersection so all six lineages are compared on truly matching trade dates.
    allDates=lanes[0].series.map(x=>x.date).filter(date=>lanes.every(l=>l.byDate.has(date)));
    if(allDates.length<MIN_POINTS)throw Error("六条策略共同有效的历史观察日不足10天");
-   marksAndRatio();constrainDateInputs();benchmarkComparison();
+   marksAndRatio();constrainDateInputs();
+   const fullRows=lanes.map(l=>rowFor(l,allDates));
+   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"完整已保存历史：2022年首个有效交易日至2026-10-09");
+   benchmarkComparison();
    await render(allDates[0],allDates.at(-1),"ALL");
    ready=true;
  }).catch(e=>{

@@ -1,0 +1,76 @@
+{
+  "schema": "BOX_HISTORICAL_START_2019_AUDIT_V1",
+  "historical_start": "2019-01-02",
+  "initial_equity": 1,
+  "historical_end": "2026-03-31",
+  "historical_sessions": 1821,
+  "research_forward_start": "2026-04-01",
+  "research_forward_end": "2026-10-09",
+  "research_forward_sessions": 133,
+  "full_research_observations": 1954,
+  "year_basis": 365.2425,
+  "calculation": "(historical_end_equity / 1)^(365.2425 / days_between_2019-01-02_and_2026-03-31)-1",
+  "note": "Historical simulated/replayed results, not prospective post-freeze performance. 2019-2021 FWD01-04 daily sources recovered; FWD05/06 exact calibrated historical endpoints found but full per-day 2019-2021 ledger has not been independently recovered. No pointwise interpolation allowed.",
+  "lanes": [
+    {
+      "id": "FWD-01",
+      "name": "Geometry exact-current baseline",
+      "historical_end_x": 5.877705866536731,
+      "combined_research_end_x": 5.911573436487748,
+      "source": "GEOMETRY_V3_RC1_RESEARCH_FREEZE.zip / independent_geometry_v3_curve.csv + geometry_v3_core_plus_capital_v1_1_combined_curve.csv",
+      "full_2019_daily_source_available": true,
+      "historical_cagr_pct": 27.708057131979658,
+      "historical_cumulative_return_pct": 487.7705866536731
+    },
+    {
+      "id": "FWD-02",
+      "name": "Capital Elasticity V1.1",
+      "historical_end_x": 7.783218589780589,
+      "combined_research_end_x": 8.095561001265438,
+      "source": "geometry_v3_core_plus_capital_v1_1_combined_curve.csv (Capital Elasticity V1.1)",
+      "full_2019_daily_source_available": true,
+      "historical_cagr_pct": 32.75726840050957,
+      "historical_cumulative_return_pct": 678.3218589780588
+    },
+    {
+      "id": "FWD-03",
+      "name": "A2R V1.1 tiered",
+      "historical_end_x": 9.41937959234981,
+      "combined_research_end_x": 10.003517443924519,
+      "source": "geometry_v3_capital_v1_1_plus_a2r_v1_1_combined_curve.csv",
+      "full_2019_daily_source_available": true,
+      "historical_cagr_pct": 36.30151889035695,
+      "historical_cumulative_return_pct": 841.9379592349809
+    },
+    {
+      "id": "FWD-04",
+      "name": "Sync-High Shadow V2",
+      "historical_end_x": 10.27223852340613,
+      "combined_research_end_x": 11.36438237101407,
+      "source": "geometry_v3_capital_v1_1_a2r_v1_1_sync_high_shadow_v2_combined_curve.csv",
+      "full_2019_daily_source_available": true,
+      "historical_cagr_pct": 37.942696155232,
+      "historical_cumulative_return_pct": 927.2238523406131
+    },
+    {
+      "id": "FWD-05",
+      "name": "Deep-only A2R + Full Sync High",
+      "historical_end_x": 9.96642974883432,
+      "combined_research_end_x": 11.084193593268846,
+      "source": "GEOMETRY_SIMPLE_GOVERNOR_REPLAY_CORRECTION_2026-10-23.md; exact calibrated event replay",
+      "full_2019_daily_source_available": false,
+      "historical_cagr_pct": 37.368210112464496,
+      "historical_cumulative_return_pct": 896.6429748834321
+    },
+    {
+      "id": "FWD-06",
+      "name": "Deep-only A2R + 0.25% Probe",
+      "historical_end_x": 9.740874067819362,
+      "combined_research_end_x": 10.82085947716564,
+      "source": "GEOMETRY_SIMPLE_GOVERNOR_REPLAY_CORRECTION_2026-10-23.md; corrected calibrated event replay",
+      "full_2019_daily_source_available": false,
+      "historical_cagr_pct": 36.93466813316133,
+      "historical_cumulative_return_pct": 874.0874067819362
+    }
+  ]
+}

@@ -54,19 +54,24 @@
   function researchTraces(series,mode){
     return series.map((l,i)=>{
       const obs=l.series.filter(r=>r.date>=researchStart&&r.date<=frozenResearchEnd);
-      const earlier=l.series.filter(r=>r.date<researchStart).at(-1);
-      const anchor=earlier?.equity;
-      if(!obs.length || !finite(anchor) || anchor<=0)throw new Error("缺失有效 3 月基准："+l.id);
-      let x=obs.map(r=>r.date),y=obs.map(r=>100*(r.equity/anchor-1));
+      if(!obs.length)throw new Error("研究期无真实净值记录："+l.id);
+      let selected=obs;
       if(mode==="1M"||mode==="3M"){
-        const end=new Date(x.at(-1)+"T00:00:00Z");
+        const end=new Date(obs.at(-1).date+"T00:00:00Z");
         const diff=mode==="1M"?30:90;
         const cutoff=new Date(end.getTime()-diff*86400000).toISOString().slice(0,10);
-        const filtered=obs.filter(r=>r.date>=cutoff);
-        x=filtered.map(r=>r.date);y=filtered.map(r=>100*(r.equity/anchor-1));
+        selected=obs.filter(r=>r.date>=cutoff);
       }
+      // REBASE EACH VISIBLE PERIOD INDEPENDENTLY. The stored daily P&L
+      // curve remains immutable: only its plot y-values are changed.
+      // Historical 2022, research Apr, official Oct all start at 1.0x.
+      const anchor=Number(selected[0]?.equity);
+      if(!Number.isFinite(anchor)||anchor<=0)throw new Error("研究期首日净值无效："+l.id);
+      const x=selected.map(r=>r.date);
+      const y=selected.map(r=>Number(r.equity)/anchor);
+      if(Math.abs(y[0]-1)>1e-12)throw new Error("研究期净值基准不是1："+l.id);
       return {x,y,name:l.id,type:"scatter",mode:"lines",line:{width:2.1,color:colors[i]},
-        hovertemplate:"%{x}<br>%{fullData.name}<br>研究期累计收益 %{y:.2f}%<extra></extra>"};
+        hovertemplate:"%{x}<br>%{fullData.name}<br>区间归一化净值 %{y:.4f}×<extra></extra>"};
     });
   }
   function nativeSvgChart(selector,traces,title) {
@@ -84,7 +89,7 @@
     const grid=Array.from({length:6},(_,i)=>{
       const y=ymin+(ymax-ymin)*i/5;
       return '<line x1="'+pad.left+'" x2="'+(width-pad.right)+'" y1="'+Y(y)+'" y2="'+Y(y)+'" stroke="#29364a"/>'+
-        '<text x="'+(pad.left-10)+'" y="'+(Y(y)+4)+'" fill="#99a8bd" text-anchor="end" font-size="13">'+y.toFixed(1)+'%</text>';
+        '<text x="'+(pad.left-10)+'" y="'+(Y(y)+4)+'" fill="#99a8bd" text-anchor="end" font-size="13">'+y.toFixed(3)+'×</text>';
     }).join("");
     const paths=traces.map((t,i)=>{
       const d=t.x.map((date,j)=>[Date.parse(date),Number(t.y[j])]).filter(p=>p.every(Number.isFinite)).map((p,j)=>(j===0?'M':'L')+X(p[0]).toFixed(2)+','+Y(p[1]).toFixed(2)).join(' ');
@@ -100,11 +105,14 @@
   }
 
   function prospectiveTraces(live){
-    return (live.lanes||[]).map((l,i)=>({
-      x:(l.series||[]).map(r=>r.date),y:(l.series||[]).map(r=>100*(Number(r.equity)-1)),
-      name:l.id,type:"scatter",mode:"lines+markers",line:{width:2.1,color:colors[i]},
-      marker:{size:5},hovertemplate:"%{x}<br>%{fullData.name}<br>正式纸面 Forward %{y:.2f}%<extra></extra>"
-    }));
+    return (live.lanes||[]).map((l,i)=>{
+      const rows=l.series||[];
+      const anchor=Number(rows[0]?.equity);
+      if(rows.length&&(!Number.isFinite(anchor)||anchor<=0))throw new Error("正式 Forward 基准错误："+l.id);
+      return {x:rows.map(r=>r.date),y:rows.map(r=>Number(r.equity)/anchor),
+        name:l.id,type:"scatter",mode:"lines+markers",line:{width:2.1,color:colors[i]},
+        marker:{size:5},hovertemplate:"%{x}<br>%{fullData.name}<br>正式纸面 Forward %{y:.4f}×<extra></extra>"};
+    });
   }
   async function renderResearch(){
     if(!researchSet)return;
@@ -124,8 +132,8 @@
     if(typeof Plotly==="undefined") {
       nativeSvgChart("#researchTimelineChart",traces,"2026年4月—10月9日 BOX 六策略研究曲线");
     } else await Plotly.react("researchTimelineChart",traces,{...chartBase,
-      title:{text:"2026年4月—10月9日 · 六策略每日累计收益（研究期）",font:{size:15}},
-      yaxis:{...chartBase.yaxis,title:"累计收益 %（以3月31日净值为基准）",ticksuffix:"%"},
+      title:{text:"2026年4月—10月9日 · 六策略区间净值（首日=1）",font:{size:15}},
+      yaxis:{...chartBase.yaxis,title:"归一化净值（首日=1）",ticksuffix:"×"},
       xaxis:{...chartBase.xaxis,title:"美股交易日"}
     },options);
     const official=prospectiveTraces(live);
@@ -134,8 +142,8 @@
       if(typeof Plotly==="undefined") {
         nativeSvgChart("#prospectiveTimelineChart",official,"2026年10月19日后正式纸面 Forward");
       } else await Plotly.react("prospectiveTimelineChart",official,{...chartBase,
-        title:{text:"2026年10月19日以后 · 正式 Forward OOS（独立归一化）",font:{size:15}},
-        yaxis:{...chartBase.yaxis,title:"累计收益 %（10月19日 = 0%）",ticksuffix:"%"},
+        title:{text:"2026年10月19日以后 · 正式 Forward OOS（首日=1）",font:{size:15}},
+        yaxis:{...chartBase.yaxis,title:"归一化净值（正式首日=1）",ticksuffix:"×"},
         xaxis:{...chartBase.xaxis,title:"美股交易日"}
       },options);
     }else $("#prospectiveTimelineChart").innerHTML='<div class="empty">正式 Forward 还没有足够的真实交易日观察。</div>';

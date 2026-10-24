@@ -167,8 +167,23 @@
  function marksAndRatio(){
    const start=allDates[0],end=allDates.at(-1);
    $("#historicalCoverage").innerHTML=
-     '<b>历史观察范围：</b>'+esc(start)+' → '+esc(end)+
-     ' · 每条策略 '+cash(allDates.length)+' 个保存的净值观察点 · 原始文件不变，展示区间起点统一归一化为 1。';
+     '<b>当前可见历史片段：</b>'+esc(start)+' → '+esc(end)+
+     ' · 每条策略 '+cash(allDates.length)+' 个保存的净值观察点 · 早于 '+esc(start)+' 的完整逐日数据未导出到本网页 · 所选区间起点归一化为 1。';
+ }
+ function showOriginalMultipliers(){
+   // Two factual snapshots of the *same inherited global accounting base*.
+   // An early 2022 NAV > 1 proves this export is a truncated time window.
+   const histEnd="2026-03-31",end="2026-10-09",start="2022-01-03";
+   const heading=["策略","2022-01-03原始累计净值","历史阶段终点（2026-03-31）","含研究Forward终点（2026-10-09）","2022年起可见区间倍数"];
+   const rows=lanes.map(l=>{
+     const b=l.byDate.get(start),h=l.byDate.get(histEnd),e=l.byDate.get(end);
+     if(!Number.isFinite(b)||!Number.isFinite(h)||!Number.isFinite(e))throw Error(l.id+" 缺少关键历史阶段端点");
+     if(b<=1)throw Error(l.id+" 首日原始倍率异常，须核对基准");
+     return [l.id,fmt(b,3)+"×",fmt(h,3)+"×",fmt(e,3)+"×",fmt(e/b,3)+"×"];
+   });
+   $("#originalMultipleTable").innerHTML=
+     '<table><thead><tr>'+heading.map(v=>'<th>'+v+'</th>').join("")+'</tr></thead><tbody>'+
+     rows.map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
  }
  function setButtons(selected){
    $$("#historicalWindowPresets button").forEach(b=>b.classList.toggle("active",b.dataset.period===selected));
@@ -315,9 +330,9 @@
    // Use the intersection so all six lineages are compared on truly matching trade dates.
    allDates=lanes[0].series.map(x=>x.date).filter(date=>lanes.every(l=>l.byDate.has(date)));
    if(allDates.length<MIN_POINTS)throw Error("六条策略共同有效的历史观察日不足10天");
-   marksAndRatio();constrainDateInputs();
+   marksAndRatio();showOriginalMultipliers();constrainDateInputs();
    const fullRows=lanes.map(l=>rowFor(l,allDates));
-   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"完整已保存历史：2022年首个有效交易日至2026-10-09");
+   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"当前导出的可见历史片段：2022年首个有效交易日至2026-10-09；并非原始策略完整回测期");
    benchmarkComparison();
    await render(allDates[0],allDates.at(-1),"ALL");
    ready=true;

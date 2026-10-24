@@ -92,9 +92,9 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
  </div>
   <div class="section card" id="historicalMultipliers">
     <h2>原始历史累计倍数 · 5× / 7× / 9× / 10× / 11× 是什么？</h2>
-    <div class="note">原始历史曲线在 2022-01-03 的净值就<strong>不是1</strong>，意味着当前导出的曲线只是全程累计曲线的一部分。<b>原始累计倍数</b>与<b>2022年起重置为1的区间收益</b>不能混为一谈；下方分别展示 2026-03-31 历史阶段终点与 2026-10-09 加入研究 Forward 后的原始终点。<strong>原始起算日期尚需完整账本确认；本页不把2022年冒充策略真正起点。</strong></div>
+    <div class="note"><strong>已核对原始回测起点：2019年1月2日，初始资金净值为1.0000。</strong> 历史回测截至2026年3月31日（1,821个交易日），2026年4月1日至10月9日为独立研究窗口（133日）。原始累计倍数与从2022年截取、重新归一化的区间收益不能混算。下表给出原始回测的真实起点及历史CAGR。</div>
     <div id="originalMultipleTable" class="section tablewrap"><div class="empty">正在核对原始历史倍数……</div></div>
-    <div class="small section">原始倍率是已保存历史模拟/回放净值，不能代表真实账户已赚到相同倍数。研究 Forward 2026-04-01至10-09 不是严格的独立前瞻样本。FWD-05/06历史回放存在已记录的小幅校准差异。</div>
+    <div class="small section">FWD-01～04的2019–2021原始每日曲线已寻回但尚未完全接入下方图表；FWD-05/06的2019–2021每日曲线尚缺可独立复核原件，其历史终点有校准后的回放收据。下面2022年起曲线及其CAGR只代表可见区间。原始倍率仅是模拟/回放研究收益，不是实际券商收益。</div>
   </div>
   <div class="section card" id="historicalAnalytics">
     <h2>当前可见历史研究 · 六策略净值与累计收益率</h2>
@@ -253,7 +253,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 })().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
 </script>
 <script src="assets/forward-detail.js?v=20261024-3"></script>
-<script src="assets/historical-analytics.js?v=20261024-1"></script>
+<script src="assets/historical-analytics.js?v=20261024-2019-start"></script>
 
 </body>
 </html>

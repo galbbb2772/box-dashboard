@@ -8,6 +8,8 @@ on:
       - "assets/forward-detail.js"
       - "data/history/**"
       - "data/trades_*.json"
+      - "data/benchmarks.json"
+      - "assets/historical-analytics.js"
       - ".github/workflows/ui-smoke.yml"
   workflow_dispatch:
 
@@ -50,6 +52,11 @@ jobs:
           html=Path("index.html").read_text()
           assert 'id="timeline"' in html and 'id="trades"' in html
           assert 'assets/forward-detail.js' in html
+          assert 'assets/historical-analytics.js' in html
+          for eid in ["historyEquityChart","historyReturnChart","historicalAllMetrics","historicalSelectionMetrics","historyBenchmarkSummary","historicalWindowPresets"]:
+              assert 'id="'+eid+'"' in html, eid
+          benchmarks=json.loads(Path("data/benchmarks.json").read_text())
+          assert all(k in benchmarks["benchmarks"] for k in ["SPY","QQQ","DIA"])
           print("Verified saved 4–10 month curves and",len(research["rows"]),"trade records.")
           PY
 
@@ -80,6 +87,28 @@ jobs:
               assert "Top300" in page.locator("#researchTradeTable").inner_text()
               assert "2026-10-02" in page.locator("#researchTradeTable").inner_text()
               page.screenshot(path="/tmp/box-trades.png",full_page=True)
+              page.locator('.tabs button[data-tab="timeline"]').click()
+              page.wait_for_selector("#historyReturnChart svg",timeout=30000)
+              assert "2022-01-03" in page.locator("#historyActiveWindow").inner_text()
+              assert "2026-10-09" in page.locator("#historyActiveWindow").inner_text()
+              assert "FWD-05" in page.locator("#historicalAllMetrics").inner_text()
+              assert "CAGR" in page.locator("#historicalAllMetrics").inner_text()
+              assert "SPY" in page.locator("#historyBenchmarkSummary").inner_text()
+              assert "QQQ" in page.locator("#historyBenchmarkSummary").inner_text()
+              assert "DIA" in page.locator("#historyBenchmarkSummary").inner_text()
+              # Saved original history begins above 1x; the display must use 1x.
+              normalized=page.evaluate("""() => {const g=document.getElementById('historyEquityChart');return (g.data&&g.data[0])?g.data[0].y[0]:null}""")
+              if normalized is not None:
+                  assert abs(normalized-1.0)<1e-12, normalized
+              page.locator('#historicalWindowPresets button[data-period="1M"]').click()
+              page.wait_for_function("""() => document.querySelector('#historyActiveWindow').textContent.split(' → ')[0] !== '2022-01-03'""",timeout=15000)
+              page.locator("#historyStart").fill("2023-01-03")
+              page.locator("#historyEnd").fill("2024-02-01")
+              page.locator("#historyApply").click()
+              page.wait_for_function("""() => document.querySelector('#historyActiveWindow').textContent.includes('2023-01')""",timeout=15000)
+              assert "FWD-06" in page.locator("#historicalSelectionMetrics").inner_text()
+              page.screenshot(path="/tmp/box-full-history.png",full_page=True)
+              print("HISTORICAL BROWSER PASS: 2022–2026 full-period data, 1x baseline, bounded 1M/custom windows, CAGR, MDD, SPY/QQQ/DIA.")
               print("BROWSER PASS: visible 4–10 month line chart, end date",text,"trade rows",n)
               browser.close()
           PY
@@ -92,5 +121,6 @@ jobs:
           path: |
             /tmp/box-curves.png
             /tmp/box-trades.png
+            /tmp/box-full-history.png
           retention-days: 14
           if-no-files-found: warn

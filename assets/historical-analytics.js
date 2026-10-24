@@ -90,9 +90,21 @@
    const mean=returns.length?100*returns.reduce((a,b)=>a+b,0)/returns.length:null;
    const worst=returns.length?100*Math.min(...returns):null;
    const win=pos+neg?100*pos/(pos+neg):null;
+   const avg=returns.length?returns.reduce((a,b)=>a+b,0)/returns.length:0;
+   const sigma=returns.length>1?Math.sqrt(returns.reduce((v,x)=>v+(x-avg)**2,0)/(returns.length-1)):0;
+   const sharpe=returns.length>1&&sigma>0?Math.sqrt(252)*avg/sigma:null; // rf=0 assumption
+   let profitablePeriods=0,losingPeriods=0,maxWinStreak=0,maxLossStreak=0,winRun=0,lossRun=0;
+   for(const r of returns){
+     if(r>1e-12){if(winRun===0)profitablePeriods++;winRun++;lossRun=0;}
+     else if(r< -1e-12){if(lossRun===0)losingPeriods++;lossRun++;winRun=0;}
+     else{winRun=0;lossRun=0;}
+     maxWinStreak=Math.max(maxWinStreak,winRun);
+     maxLossStreak=Math.max(maxLossStreak,lossRun);
+   }
    // Market observation spans many days. A non-flat NAV day does not prove a new order.
    return {start:obs[0].date,end:obs.at(-1).date,calendar:Math.round((end-start)/86400000)+1,
-      marketDays:days,returnIntervals:returns.length,nonflat:pos+neg,pos,neg,flat,total,cagr,mdd,worst,mean,win,
+      marketDays:days,returnIntervals:returns.length,nonflat:pos+neg,pos,neg,flat,total,cagr,mdd,worst,mean,win,sharpe,
+      profitablePeriods,losingPeriods,maxWinStreak,maxLossStreak,
       tradeDays:null,trades:null,tradeExpectancy:null,tradeWinRate:null};
  }
  function rowFor(l,dates){
@@ -112,11 +124,16 @@
      ["实际成交日",v=>"未核验"],
      ["累计收益",v=>percent(v.stats.total)],
      ["CAGR",v=>percent(v.stats.cagr)],
+     ["Sharpe*",v=>fmt(v.stats.sharpe)],
      ["最大回撤",v=>percent(v.stats.mdd)],
      ["最差单日",v=>percent(v.stats.worst)],
      ["盈利日",v=>cash(v.stats.pos)],
      ["亏损日",v=>cash(v.stats.neg)],
      ["持平日",v=>cash(v.stats.flat)],
+     ["连续盈利段",v=>cash(v.stats.profitablePeriods)],
+     ["连续亏损段",v=>cash(v.stats.losingPeriods)],
+     ["最长盈利连续日",v=>cash(v.stats.maxWinStreak)],
+     ["最长亏损连续日",v=>cash(v.stats.maxLossStreak)],
      ["上涨日占比*",v=>percent(v.stats.win)],
      ["日收益期望*",v=>percent(v.stats.mean,4)],
      ["交易胜率/单笔期望",v=>"交易账本不足"]

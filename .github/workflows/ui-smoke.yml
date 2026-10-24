@@ -7,6 +7,8 @@ on:
       - "index.html"
       - "assets/forward-detail.js"
       - "data/history/**"
+      - "data/history_full/**"
+      - "data/history_prefix_2019_2021.json"
       - "data/trades_*.json"
       - "data/benchmarks.json"
       - "assets/historical-analytics.js"
@@ -78,6 +80,10 @@ jobs:
               browser=p.chromium.launch(headless=True)
               page=browser.new_page(viewport={"width": 1440, "height": 960})
               page.goto("http://127.0.0.1:8787/",wait_until="domcontentloaded",timeout=30000)
+              assert page.locator('section#historical').is_visible(), "2019历史曲线必须是默认打开的独立页面"
+              page.wait_for_selector("#historyEquityChart svg",timeout=30000)
+              page.screenshot(path="/tmp/box-2019-default.png",full_page=True)
+              page.locator('.tabs button[data-tab="timeline"]').click()
               page.wait_for_selector("#researchTimelineChart svg",timeout=30000)
               text=page.locator("#timelineMeta").inner_text()
               assert "2026-10-09" in text, text
@@ -90,7 +96,7 @@ jobs:
               assert "Top300" in page.locator("#researchTradeTable").inner_text()
               assert "2026-10-02" in page.locator("#researchTradeTable").inner_text()
               page.screenshot(path="/tmp/box-trades.png",full_page=True)
-              page.locator('.tabs button[data-tab="timeline"]').click()
+              page.locator('.tabs button[data-tab="historical"]').click()
               page.wait_for_selector("#historyReturnChart svg",timeout=30000)
               assert "2019-01-02" in page.locator("#historyActiveWindow").inner_text()
               assert "2026-10-09" in page.locator("#historyActiveWindow").inner_text()
@@ -122,7 +128,7 @@ jobs:
               page.wait_for_function("""() => document.querySelector('#historyActiveWindow').textContent.includes('2023-01')""",timeout=15000)
               assert "FWD-06" in page.locator("#historicalSelectionMetrics").inner_text()
               page.screenshot(path="/tmp/box-full-history.png",full_page=True)
-              print("HISTORICAL BROWSER PASS: 2022–2026 full-period data, 1x baseline, bounded 1M/custom windows, CAGR, MDD, SPY/QQQ/DIA.")
+              print("HISTORICAL BROWSER PASS: 2019–2026 daily charts FWD-01..04 with honest missing FWD-05/06 prefix; 1x baseline, bounded ranges, CAGR, MDD, SPY/QQQ/DIA.")
               print("BROWSER PASS: visible 4–10 month line chart, end date",text,"trade rows",n)
               browser.close()
           PY
@@ -136,5 +142,6 @@ jobs:
             /tmp/box-curves.png
             /tmp/box-trades.png
             /tmp/box-full-history.png
+            /tmp/box-2019-default.png
           retention-days: 14
           if-no-files-found: warn

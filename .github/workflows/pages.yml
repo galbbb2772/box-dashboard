@@ -30,6 +30,9 @@ jobs:
           python -m json.tool data/benchmarks.json >/dev/null
           python -m json.tool data/robust_forward.json >/dev/null
           python -m json.tool data/robust_forward_live.json >/dev/null
+          python -m json.tool data/trades_research.json >/dev/null
+          python -m json.tool data/trades_official.json >/dev/null
+          node --check assets/forward-detail.js
           test -f index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -338,7 +338,7 @@
       }catch(e){showError(e)}
    });
    $$(".tabs button").forEach(b=>b.addEventListener("click",()=>{
-      if(b.dataset.tab!=="timeline")return;
+      if(b.dataset.tab!=="historical")return;
       setTimeout(()=>{if(ready&&lastSelected)drawCharts(lastSelected).catch(showError)},150);
    }));
  }

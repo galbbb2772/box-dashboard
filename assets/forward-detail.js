@@ -1,0 +1,191 @@
+/* BOX Dashboard: daily research-Forward timeline + separated paper trade blotter.
+   The historical observation file contains exact stored daily equity observations.
+   It must NOT be relabelled as clean prospective OOS or broker executions. */
+(() => {
+  "use strict";
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  const $ = (s) => document.querySelector(s);
+  const esc = (v) => String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const finite = (v) => v !== null && v !== "" && Number.isFinite(Number(v));
+  const number = (v, digits=2) => finite(v) ? Number(v).toFixed(digits) : "—";
+  const usd = (v) => finite(v) ? "$" + number(v, 2) : "—";
+  const ym = (v) => String(v||"").slice(0,10);
+  const chartBase = {
+    paper_bgcolor:"rgba(0,0,0,0)", plot_bgcolor:"rgba(0,0,0,0)",
+    font:{color:"#cdd7e8"}, margin:{l:65,r:16,t:38,b:46},
+    hovermode:"x unified", legend:{orientation:"h",y:1.19,x:0},
+    xaxis:{gridcolor:"#172034",type:"date"}, yaxis:{gridcolor:"#172034"},
+    dragmode:"pan"
+  };
+  const options={responsive:true,displaylogo:false,displayModeBar:true,scrollZoom:false};
+  const laneIds=["FWD-01","FWD-02","FWD-03","FWD-04","FWD-05","FWD-06"];
+  const colors=["#79b8ff","#68d8be","#ffc270","#c2a4ff","#f37b98","#8fd3e6"];
+  const researchStart="2026-04-01";
+  const frozenResearchEnd="2026-10-09";
+  let researchReady=false, tradeReady=false, researchSet=null, tradeSet=null;
+  let curveMode="ALL", tradeRows=[];
+
+  async function json(url) {
+    const response=await fetch(url+"?v="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw new Error(url+" HTTP "+response.status);
+    return response.json();
+  }
+  function decode(l) {
+    if(!l)return {series:[]};
+    if(Array.isArray(l.series))return l;
+    if(!(l.do && l.eq && l.n))throw new Error("历史曲线缺少正式观察数据："+l.id);
+    const d=Uint8Array.from(atob(l.do),c=>c.charCodeAt(0));
+    const e=Uint8Array.from(atob(l.eq),c=>c.charCodeAt(0));
+    if(d.byteLength !== l.n*2 || e.byteLength !== l.n*8)throw new Error("历史曲线长度错误："+l.id);
+    const dv=new DataView(d.buffer),ev=new DataView(e.buffer),series=[];
+    for(let i=0;i<l.n;i++){
+      const day=l.base+dv.getUint16(i*2,true), equity=ev.getFloat64(i*8,true);
+      const date=new Date(day*86400000).toISOString().slice(0,10);
+      if(!Number.isFinite(equity)||equity<=0)throw new Error("净值不是有效正数："+l.id+" "+date);
+      if(i>0&&date<=series[i-1].date)throw new Error("日期顺序错误："+l.id+" "+date);
+      series.push({date,equity});
+    }
+    return {...l,series};
+  }
+  function textError(sel,e){
+    const el=$(sel);
+    if(el)el.innerHTML='<div class="empty bad">数据未能通过检查，图表不会使用估算值：'+esc(e.message||e)+'</div>';
+  }
+  function researchTraces(series,mode){
+    return series.map((l,i)=>{
+      const obs=l.series.filter(r=>r.date>=researchStart&&r.date<=frozenResearchEnd);
+      const earlier=l.series.filter(r=>r.date<researchStart).at(-1);
+      const anchor=earlier?.equity;
+      if(!obs.length || !finite(anchor) || anchor<=0)throw new Error("缺失有效 3 月基准："+l.id);
+      let x=obs.map(r=>r.date),y=obs.map(r=>100*(r.equity/anchor-1));
+      if(mode==="1M"||mode==="3M"){
+        const end=new Date(x.at(-1)+"T00:00:00Z");
+        const diff=mode==="1M"?30:90;
+        const cutoff=new Date(end.getTime()-diff*86400000).toISOString().slice(0,10);
+        const filtered=obs.filter(r=>r.date>=cutoff);
+        x=filtered.map(r=>r.date);y=filtered.map(r=>100*(r.equity/anchor-1));
+      }
+      return {x,y,name:l.id,type:"scatter",mode:"lines",line:{width:2.1,color:colors[i]},
+        hovertemplate:"%{x}<br>%{fullData.name}<br>研究期累计收益 %{y:.2f}%<extra></extra>"};
+    });
+  }
+  function prospectiveTraces(live){
+    return (live.lanes||[]).map((l,i)=>({
+      x:(l.series||[]).map(r=>r.date),y:(l.series||[]).map(r=>100*(Number(r.equity)-1)),
+      name:l.id,type:"scatter",mode:"lines+markers",line:{width:2.1,color:colors[i]},
+      marker:{size:5},hovertemplate:"%{x}<br>%{fullData.name}<br>正式纸面 Forward %{y:.2f}%<extra></extra>"
+    }));
+  }
+  async function renderResearch(){
+    if(!researchSet || typeof Plotly==="undefined")return;
+    const panel=$("#timeline");
+    if(!panel || !panel.classList.contains("on"))return;
+    const {lanes,live}=researchSet;
+    const endDates=lanes.map(l=>l.series.at(-1)?.date).filter(Boolean);
+    const lastDataDate=endDates.sort().at(0);
+    $("#timelineMeta").innerHTML=
+      '<div class="metricgrid">'+
+      '<div class="metric"><span class="small">研究期真实曲线</span><b>'+lanes.length+' 条</b></div>'+
+      '<div class="metric"><span class="small">研究期截至</span><b>'+esc(lastDataDate)+'</b></div>'+
+      '<div class="metric"><span class="small">正式 Forward 截至</span><b>'+esc(live.last_processed_market_date||"暂无")+'</b></div>'+
+      '<div class="metric"><span class="small">正式交易事件</span><b>'+esc(live.official_trade_events||0)+'</b></div>'+
+      '</div>';
+    const traces=researchTraces(lanes,curveMode);
+    await Plotly.react("researchTimelineChart",traces,{...chartBase,
+      title:{text:"2026年4月—10月9日 · 六策略每日累计收益（研究期）",font:{size:15}},
+      yaxis:{...chartBase.yaxis,title:"累计收益 %（以3月31日净值为基准）",ticksuffix:"%"},
+      xaxis:{...chartBase.xaxis,title:"美股交易日"}
+    },options);
+    const official=prospectiveTraces(live);
+    const visible=official.some(t=>t.x.length>=2);
+    if(visible){
+      await Plotly.react("prospectiveTimelineChart",official,{...chartBase,
+        title:{text:"2026年10月19日以后 · 正式 Forward OOS（独立归一化）",font:{size:15}},
+        yaxis:{...chartBase.yaxis,title:"累计收益 %（10月19日 = 0%）",ticksuffix:"%"},
+        xaxis:{...chartBase.xaxis,title:"美股交易日"}
+      },options);
+    }else $("#prospectiveTimelineChart").innerHTML='<div class="empty">正式 Forward 还没有足够的真实交易日观察。</div>';
+    researchReady=true;
+  }
+  function tradeView(){
+    if(!tradeSet)return;
+    const universe=$("#tradeUniverse")?.value ||"ALL";
+    const scale=$("#tradeScale")?.value||"ALL";
+    const q=($("#tradeSearch")?.value||"").trim().toUpperCase();
+    const rows=tradeSet.research.rows||[];
+    tradeRows=rows.filter(r=>(universe==="ALL"||r.universe===universe)
+      &&(scale==="ALL"||r.box_scale===scale)
+      &&(!q||r.symbol.toUpperCase().includes(q)));
+    const official=tradeSet.official.rows||[];
+    $("#tradeSummary").innerHTML='<div class="metricgrid">'+
+      '<div class="metric"><span class="small">研究交易记录（分宇宙）</span><b>'+rows.length+'</b></div>'+
+      '<div class="metric"><span class="small">筛选后</span><b>'+tradeRows.length+'</b></div>'+
+      '<div class="metric"><span class="small">Top300 / Top500</span><b>'+Number(tradeSet.research.source_rows?.Top300||0)+' / '+Number(tradeSet.research.source_rows?.Top500||0)+'</b></div>'+
+      '<div class="metric"><span class="small">六策略正式交易事件</span><b>'+official.length+'</b></div></div>';
+    const header=["策略宇宙","代码","证券品种","箱体种类","信号日期","买入日期","买入价","卖出日期","卖出价","单笔净收益","离场原因","时间精度"];
+    const cols=[r=>r.universe,r=>r.symbol,r=>r.asset_type,r=>r.box_scale,r=>r.signal_date,
+      r=>r.entry_date,r=>usd(r.entry_price),r=>r.exit_date||"未记录",r=>usd(r.exit_price),
+      r=>finite(r.net_return_pct)?number(r.net_return_pct,2)+"%":"—",
+      r=>r.exit_reason||"—",r=>"日线日期"];
+    const body=tradeRows.map(r=>'<tr>'+cols.map(c=>'<td>'+esc(c(r))+'</td>').join("")+'</tr>').join("");
+    $("#researchTradeTable").innerHTML=tradeRows.length
+      ? '<table><thead><tr>'+header.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+body+'</tbody></table>'
+      : '<div class="empty">当前筛选条件下没有研究交易。</div>';
+    const officialHeaders=["Lane","标的","品种","事件日期","类型","信号日期","进场日期","进场价","离场日期","离场价","收益","备注"];
+    $("#officialTradeTable").innerHTML=official.length
+      ? '<table><thead><tr>'+officialHeaders.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+
+       official.map(r=>'<tr>'+[
+         r.lane_id,r.symbol,r.asset_type||"证券（未核实）",r.event_date,r.event_type,
+         r.signal_date||"—",r.entry_date||"—",usd(r.entry_price),r.exit_date||"—",
+         usd(r.exit_price),finite(r.net_return_pct)?number(r.net_return_pct,2)+"%":"—",
+         "Forward paper event（日线）"
+       ].map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>'
+      : '<div class="empty">截至 '+esc(tradeSet.official.as_of_market_date||"最新已验证市场日期")+'，FWD-01～06 尚无正式交易事件。这里不会拿研究交易冒充实盘交易单。</div>';
+    tradeReady=true;
+  }
+  function exportVisibleCsv(){
+    if(!tradeRows.length)return;
+    const fields=["universe","symbol","asset_type","box_scale","signal_date","entry_date","entry_price","exit_date","exit_price","net_return_pct","exit_reason","time_precision"];
+    const quote=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+    const content=[fields.join(","),...tradeRows.map(r=>fields.map(k=>quote(r[k])).join(","))].join("\r\n")+"\r\n";
+    const link=document.createElement("a");
+    link.href=URL.createObjectURL(new Blob(["\ufeff",content],{type:"text/csv;charset=utf-8"}));
+    link.download="BOX_research_trades_2026-04_to_10.csv";
+    document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+  }
+  function bind(){
+    $("#timelineRange")?.addEventListener("click",e=>{
+      const target=e.target.closest("button[data-period]");
+      if(!target)return;
+      curveMode=target.dataset.period;
+      $$("#timelineRange button").forEach(b=>b.classList.toggle("active",b===target));
+      renderResearch().catch(e=>textError("#researchTimelineChart",e));
+    });
+    ["#tradeUniverse","#tradeScale","#tradeSearch"].forEach(sel=>{
+      $(sel)?.addEventListener(sel==="#tradeSearch"?"input":"change",tradeView);
+    });
+    $("#downloadResearchTrades")?.addEventListener("click",exportVisibleCsv);
+    $$(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+      const id=b.dataset.tab;
+      setTimeout(()=>{
+        if(id==="timeline")renderResearch().catch(e=>textError("#researchTimelineChart",e));
+        if(id==="trades")tradeView();
+      },90);
+    }));
+  }
+  bind();
+  Promise.all([
+    ...laneIds.map(id=>json("data/history/"+id+".json")),
+    json("data/robust_forward_live.json"),json("data/trades_research.json"),json("data/trades_official.json")
+  ]).then(all=>{
+    const lanes=all.slice(0,6).map(decode);
+    const ids=lanes.map(x=>x.id);
+    if(JSON.stringify(ids)!==JSON.stringify(laneIds))throw new Error("曲线与六条冻结 Lane 的身份不匹配");
+    researchSet={lanes,live:all[6]};
+    tradeSet={research:all[7],official:all[8]};
+    if($("#timeline")?.classList.contains("on"))
+      requestAnimationFrame(()=>renderResearch().catch(e=>textError("#researchTimelineChart",e)));
+    if($("#trades")?.classList.contains("on"))tradeView();
+  }).catch(e=>{textError("#researchTimelineChart",e);textError("#researchTradeTable",e);console.error("BOX timeline/trade data rejected:",e)});
+})();

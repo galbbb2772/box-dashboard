@@ -92,6 +92,11 @@ jobs:
               assert "2022-01-03" in page.locator("#historyActiveWindow").inner_text()
               assert "2026-10-09" in page.locator("#historyActiveWindow").inner_text()
               assert "FWD-05" in page.locator("#historicalAllMetrics").inner_text()
+              original=page.locator("#originalMultipleTable").inner_text()
+              assert "5.912" in original and "8.096" in original and "10.004" in original, original
+              assert "11.364" in original and "11.084" in original and "10.821" in original, original
+              assert "2022-01-03" in original and "2026-03-31" in original and "2026-10-09" in original
+              assert "全部可见数据" in page.locator('#historicalWindowPresets').inner_text()
               assert "CAGR" in page.locator("#historicalAllMetrics").inner_text()
               assert "SPY" in page.locator("#historyBenchmarkSummary").inner_text()
               assert "QQQ" in page.locator("#historyBenchmarkSummary").inner_text()

@@ -64,7 +64,8 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
 <div class="grid" id="topCards"></div>
 
 <div class="tabs">
-<button class="active" data-tab="timeline">4月→至今曲线</button>
+<button class="active" data-tab="historical">2019历史回测</button>
+<button data-tab="timeline">4月→至今曲线</button>
 <button data-tab="trades">逐笔交易</button>
 <button data-tab="live">实盘总览</button>
 <button data-tab="oos">Forward OOS</button>
@@ -72,33 +73,16 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
 <button data-tab="research">研究 Forward</button>
 <button data-tab="system">系统状态</button>
 </div>
-<section id="timeline" class="panel on">
- <div class="card">
-   <h2 style="margin-bottom:8px">2026年4月—至今 · BOX 六策略收益曲线</h2>
-   <div class="note">数据严格分段：2026-04-01 至 2026-10-09 是<strong>历史研究 Forward</strong>（非冻结后的独立样本）；2026-10-19 起才是<strong>正式前瞻纸面 Forward</strong>。两段分别绘图，绝不跨越中间缺失日期连线，也不制造不存在的交易。</div>
-   <div id="timelineMeta" class="section"></div>
-   <div id="timelineRange" class="range section" style="display:flex;gap:8px">
-      <button class="active" data-period="ALL">4月以来全部</button>
-      <button data-period="3M">研究期最后3个月</button>
-      <button data-period="1M">研究期最后1个月</button>
-   </div>
-   <div id="researchTimelineChart" class="chart" style="height:520px"></div>
-   <div class="small">研究期每日数据来自六条已保存的 FWD 曲线文件，不是按期末收益插值。所选研究区间首日净值归一化为1；仅表示研究观察，不等于真实账户交易记录。</div>
- </div>
- <div class="section card">
-   <h2>正式 Forward OOS · 2026年10月19日起</h2>
-   <div class="small">只计算冻结后真实观测。当前数据源可能存在 T+1 或订阅延迟；每条策略的净值以 10 月 19 日归一化为 1.0000，与上面的研究曲线不混算。</div>
-   <div id="prospectiveTimelineChart" class="chart" style="height:360px"></div>
- </div>
+<section id="historical" class="panel on">
   <div class="section card" id="historicalMultipliers">
     <h2>原始历史累计倍数 · 5× / 7× / 9× / 10× / 11× 是什么？</h2>
     <div class="note"><strong>已核对原始回测起点：2019年1月2日，初始资金净值为1.0000。</strong> 历史回测截至2026年3月31日（1,821个交易日），2026年4月1日至10月9日为独立研究窗口（133日）。原始累计倍数与从2022年截取、重新归一化的区间收益不能混算。下表给出原始回测的真实起点及历史CAGR。</div>
     <div id="originalMultipleTable" class="section tablewrap"><div class="empty">正在核对原始历史倍数……</div></div>
-    <div class="small section">FWD-01～04的2019–2021原始每日曲线已寻回并已接入下方图表；FWD-05/06的2019–2021每日曲线尚缺可独立复核原件，其历史终点有校准后的回放收据。下面2022年起曲线及其CAGR只代表可见区间。原始倍率仅是模拟/回放研究收益，不是实际券商收益。</div>
+    <div class="small section">FWD-01～04的2019–2021原始每日曲线已寻回并已接入下方图表；FWD-05/06的2019–2021每日曲线尚缺可独立复核原件，其历史终点有校准后的回放收据。下方2019年起的完整日线目前只有FWD-01～04，FWD-05/06完整历史CAGR仅按复现收据记录。原始倍率仅是模拟/回放研究收益，不是实际券商收益。</div>
   </div>
   <div class="section card" id="historicalAnalytics">
     <h2>当前可见历史研究 · 六策略净值与累计收益率</h2>
-    <div class="note">当前仅保存并展示自 2022-01-03 至 2026-10-09 的观察片段，更早阶段需要恢复完整逐日历史数据；这不是策略全部历史，也不等于 2026 年 10 月冻结后独立 Forward OOS。原始净值文件保留不变；下方的两个图表均以<strong>所选区间首个实际观察交易日 = 1.0000</strong> 为基准。净值曲线与累计收益曲线均不添加虚构行情。</div>
+    <div class="note">FWD-01～04已展示2019-01-02至2026-10-09的逐日历史（1,954日）；FWD-05、06尚缺2019—2021原件，所以从2022-01-03才有每日曲线；这不是六条策略均已完成全历史复现，也不等于 2026 年 10 月冻结后独立 Forward OOS。原始净值文件保留不变；下方的两个图表均以<strong>所选区间首个可验证观察交易日 = 1.0000</strong> 为基准。净值曲线与累计收益曲线均不添加虚构行情。</div>
     <div class="small section" id="historicalCoverage">读取已保存六条策略历史数据……</div>
     <div class="range section" id="historicalWindowPresets" style="display:flex;gap:7px;flex-wrap:wrap">
       <button data-period="1M">1个月</button>
@@ -108,7 +92,7 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
       <button data-period="1Y">1年</button>
       <button data-period="2Y">2年</button>
       <button data-period="3Y">3年</button>
-      <button data-period="ALL" class="active">全部可见数据（2022年起）</button>
+      <button data-period="ALL" class="active">全部可见数据（2019年起）</button>
     </div>
     <div class="section" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <label for="historyStart" class="small">开始日期</label>
@@ -131,15 +115,34 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
     <div class="note section">*“上涨日占比” = 上涨日 ÷（上涨日 + 下跌日），不是逐笔交易胜率；“日收益期望” = 相邻观察日日收益简单平均值；Sharpe 使用日收益标准差、√252年化和零无风险利率假设。盈利/亏损连续段统计连续上涨/下跌日，不是逐笔仓位或成交段。实际下单日期、实际在仓日和交易级胜率/期望值需要逐笔成交与持仓流水，目前不能从净值曲线可靠反推。</div>
   </div>
   <div class="section card">
-    <h2>六策略 · 当前可见历史段统计（2022年以来，不随区间切换而变化）</h2>
+    <h2>六策略 · 各自拥有逐日数据的可见区间统计（与原始完整历史CAGR分开）</h2>
     <div id="historicalAllMetrics" class="tablewrap section"><div class="empty">计算中……</div></div>
-    <div class="small section">CAGR 仅针对2022-01-03至2026-10-09的可见片段，使用该区间实际日历时间计算年复利；这不是原策略完整历史CAGR；最大回撤为区间内净值相对先前最高净值的最大跌幅；最差单日代表相邻两个观察交易日的最差净值变化。没有假定策略始终满仓。</div>
+    <div class="small section">表中各策略的CAGR仅针对其实际有逐日记录的可见区间：FWD-01～04为2019-01-02起，FWD-05/06为2022-01-03起；FWD-05/06的2019起完整历史CAGR请看上方原始回测表，勿混淆；最大回撤为区间内净值相对先前最高净值的最大跌幅；最差单日代表相邻两个观察交易日的最差净值变化。没有假定策略始终满仓。</div>
   </div>
   <div class="section card">
     <h2>六条策略 vs 三大指数 · 有数据的共同交易日</h2>
     <div id="historyBenchmarkChart" class="chart" style="height:440px"></div>
     <div id="historyBenchmarkSummary" class="section"><div class="empty">核对 SPY、QQQ、DIA 数据覆盖范围……</div></div>
   </div>
+</section>
+<section id="timeline" class="panel">
+ <div class="card">
+   <h2 style="margin-bottom:8px">2026年4月—至今 · BOX 六策略收益曲线</h2>
+   <div class="note">数据严格分段：2026-04-01 至 2026-10-09 是<strong>历史研究 Forward</strong>（非冻结后的独立样本）；2026-10-19 起才是<strong>正式前瞻纸面 Forward</strong>。两段分别绘图，绝不跨越中间缺失日期连线，也不制造不存在的交易。</div>
+   <div id="timelineMeta" class="section"></div>
+   <div id="timelineRange" class="range section" style="display:flex;gap:8px">
+      <button class="active" data-period="ALL">4月以来全部</button>
+      <button data-period="3M">研究期最后3个月</button>
+      <button data-period="1M">研究期最后1个月</button>
+   </div>
+   <div id="researchTimelineChart" class="chart" style="height:520px"></div>
+   <div class="small">研究期每日数据来自六条已保存的 FWD 曲线文件，不是按期末收益插值。所选研究区间首日净值归一化为1；仅表示研究观察，不等于真实账户交易记录。</div>
+ </div>
+ <div class="section card">
+   <h2>正式 Forward OOS · 2026年10月19日起</h2>
+   <div class="small">只计算冻结后真实观测。当前数据源可能存在 T+1 或订阅延迟；每条策略的净值以 10 月 19 日归一化为 1.0000，与上面的研究曲线不混算。</div>
+   <div id="prospectiveTimelineChart" class="chart" style="height:360px"></div>
+ </div>
 </section>
 <section id="trades" class="panel">
   <div class="card">
@@ -253,7 +256,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 })().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
 </script>
 <script src="assets/forward-detail.js?v=20261024-3"></script>
-<script src="assets/historical-analytics.js?v=20261024-2019-splice-1"></script>
+<script src="assets/historical-analytics.js?v=20261024-2019-tabs-v2"></script>
 
 </body>
 </html>

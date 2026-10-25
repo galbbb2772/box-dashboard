@@ -1,6 +1,6 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-25T05:11:30.510278+00:00",
+  "generated_at_utc": "2026-10-25T06:11:16.260923+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,
@@ -124,6 +124,11 @@
     "passed_checks": 4,
     "total_checks": 8,
     "decision": "DO_NOT_PROMOTE_GLOBAL_GAP_TAIL_EXCLUSION",
+    "decision_source": {
+      "kind": "archived_frozen_summary",
+      "path": "02_SUPERSEDED_LEGACY/sources/box-strategy-lab/research/pure_box_gap_tail_holdout_v1/results/local_lowmem_summary.json",
+      "git_blob_sha": "acce9868ffdada77adc9aca6035ab4c6e99f55c6"
+    },
     "public_note": "Holdout evidence was mixed across universes; the global hard-exclusion rule was not promoted."
   },
   "forward": {

@@ -1,6 +1,7 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
-  "generated_at_utc": "2026-10-25T06:11:16.260923+00:00",
+  "exporter_version": "1.1",
+  "generated_at_utc": "2026-10-25T06:19:34.811007+00:00",
   "as_of": "2026-10-05",
   "source_window": "strategy evidence through 2026-10-05",
   "production_strategy": null,

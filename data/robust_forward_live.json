@@ -1,10 +1,10 @@
 {
   "schema": "BOX-ROBUST-PROSPECTIVE-FORWARD-PUBLIC-V1",
-  "generated_at_utc": "2026-10-27T16:48:34.339987+00:00",
+  "generated_at_utc": "2026-10-28T17:16:30.187884+00:00",
   "official_signal_boundary": "2026-10-19",
   "earliest_official_entry": "2026-10-20",
-  "last_processed_market_date": "2026-10-26",
-  "official_daily_rows": 36,
+  "last_processed_market_date": "2026-10-27",
+  "official_daily_rows": 42,
   "official_trade_events": 6,
   "min_visible_points": 10,
   "lanes": [
@@ -88,6 +88,19 @@
           "gross_exposure_pct": 70.00050798930026,
           "net_exposure_pct": 70.00050798930026,
           "cash_pct": 29.99949201069973,
+          "borrow_pct": 0.0,
+          "open_positions": 1,
+          "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-27",
+          "lane_id": "FWD-01",
+          "equity": 1.0388201258686247,
+          "daily_return_pct": 3.880253555166302,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 71.12108318568139,
+          "net_exposure_pct": 71.12108318568139,
+          "cash_pct": 28.87891681431861,
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
@@ -177,6 +190,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-27",
+          "lane_id": "FWD-02",
+          "equity": 1.0388201258686247,
+          "daily_return_pct": 3.880253555166302,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 71.12108318568139,
+          "net_exposure_pct": 71.12108318568139,
+          "cash_pct": 28.87891681431861,
+          "borrow_pct": 0.0,
+          "open_positions": 1,
+          "closed_trades_cum": 0
         }
       ]
     },
@@ -260,6 +286,19 @@
           "gross_exposure_pct": 70.00050798930026,
           "net_exposure_pct": 70.00050798930026,
           "cash_pct": 29.99949201069973,
+          "borrow_pct": 0.0,
+          "open_positions": 1,
+          "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-27",
+          "lane_id": "FWD-03",
+          "equity": 1.0388201258686247,
+          "daily_return_pct": 3.880253555166302,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 71.12108318568139,
+          "net_exposure_pct": 71.12108318568139,
+          "cash_pct": 28.87891681431861,
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
@@ -349,6 +388,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-27",
+          "lane_id": "FWD-04",
+          "equity": 1.0388201258686247,
+          "daily_return_pct": 3.880253555166302,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 71.12108318568139,
+          "net_exposure_pct": 71.12108318568139,
+          "cash_pct": 28.87891681431861,
+          "borrow_pct": 0.0,
+          "open_positions": 1,
+          "closed_trades_cum": 0
         }
       ]
     },
@@ -435,6 +487,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-27",
+          "lane_id": "FWD-05",
+          "equity": 1.0388201258686247,
+          "daily_return_pct": 3.880253555166302,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 71.12108318568139,
+          "net_exposure_pct": 71.12108318568139,
+          "cash_pct": 28.87891681431861,
+          "borrow_pct": 0.0,
+          "open_positions": 1,
+          "closed_trades_cum": 0
         }
       ]
     },
@@ -518,6 +583,19 @@
           "gross_exposure_pct": 70.00050798930026,
           "net_exposure_pct": 70.00050798930026,
           "cash_pct": 29.99949201069973,
+          "borrow_pct": 0.0,
+          "open_positions": 1,
+          "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-27",
+          "lane_id": "FWD-06",
+          "equity": 1.0388201258686247,
+          "daily_return_pct": 3.880253555166302,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 71.12108318568139,
+          "net_exposure_pct": 71.12108318568139,
+          "cash_pct": 28.87891681431861,
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0

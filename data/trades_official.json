@@ -2,7 +2,7 @@
   "schema": "BOX_PUBLIC_OFFICIAL_FORWARD_TRADE_EVENTS_V1",
   "official_boundary": "2026-10-19",
   "source": "forward_oos/TRADE_EVENTS.csv",
-  "as_of_market_date": "2026-10-26",
+  "as_of_market_date": "2026-10-27",
   "count": 6,
   "time_precision": "EOD/daily only; no broker fill timestamps",
   "note": "Only official prospective paper Forward events; not broker transactions.",

@@ -158,12 +158,71 @@
     tradeRows=rows.filter(r=>(universe==="ALL"||r.universe===universe)
       &&(scale==="ALL"||r.box_scale===scale)
       &&(!q||r.symbol.toUpperCase().includes(q)));
-    const official=tradeSet.official.rows||[];
+
+    const official=[...(tradeSet.official.rows||[])].sort((a,b)=>
+      String(a.event_date).localeCompare(String(b.event_date)) ||
+      String(a.lane_id||"").localeCompare(String(b.lane_id||""))
+    );
+    const asOf=tradeSet.official.as_of_market_date ||
+      (official.length?official[official.length-1].event_date:"—");
+    const lanes=["FWD-01","FWD-02","FWD-03","FWD-04","FWD-05","FWD-06"];
+    const todayEvents=official.filter(r=>r.event_date===asOf);
+
+    const open=new Map();
+    const keyOf=r=>r.episode_id
+      ? String(r.lane_id)+"|"+String(r.episode_id)
+      : String(r.lane_id)+"|"+String(r.symbol)+"|"+String(r.entry_date||r.signal_date||r.event_date);
+    official.forEach(r=>{
+      const typ=String(r.event_type||"").toUpperCase();
+      if(typ==="ENTRY"||typ==="ADD"||typ==="OPEN"){
+        open.set(keyOf(r),r);
+      }else if(typ==="EXIT"||typ==="CLOSE"||typ==="STOP"||typ==="TARGET"){
+        if(r.episode_id) open.delete(keyOf(r));
+        else{
+          [...open.entries()].forEach(([k,v])=>{
+            if(v.lane_id===r.lane_id&&v.symbol===r.symbol)open.delete(k);
+          });
+        }
+      }
+    });
+    const openRows=[...open.values()].sort((a,b)=>
+      String(a.lane_id||"").localeCompare(String(b.lane_id||"")) ||
+      String(a.entry_date||"").localeCompare(String(b.entry_date||""))
+    );
+
     $("#tradeSummary").innerHTML='<div class="metricgrid">'+
-      '<div class="metric"><span class="small">研究交易记录（分宇宙）</span><b>'+rows.length+'</b></div>'+
-      '<div class="metric"><span class="small">筛选后</span><b>'+tradeRows.length+'</b></div>'+
-      '<div class="metric"><span class="small">Top300 / Top500</span><b>'+Number(tradeSet.research.source_rows?.Top300||0)+' / '+Number(tradeSet.research.source_rows?.Top500||0)+'</b></div>'+
-      '<div class="metric"><span class="small">六策略正式交易事件</span><b>'+official.length+'</b></div></div>';
+      '<div class="metric"><span class="small">最新已处理交易日</span><b>'+esc(asOf)+'</b></div>'+
+      '<div class="metric"><span class="small">今日正式动作</span><b>'+todayEvents.length+'</b></div>'+
+      '<div class="metric"><span class="small">当前开放持仓</span><b>'+openRows.length+'</b></div>'+
+      '<div class="metric"><span class="small">正式 Forward 事件累计</span><b>'+official.length+'</b></div></div>';
+
+    if($("#tradeAsOf")) $("#tradeAsOf").innerHTML='账本截至 <b>'+esc(asOf)+'</b> · 当日没有事件的 Lane 明确显示「无动作」。';
+    const actionHeaders=["Lane","今日动作","标的","信号日","事件日","入场/离场价","仓位","备注"];
+    const actionRows=lanes.map(lane=>{
+      const ev=todayEvents.filter(r=>r.lane_id===lane);
+      if(!ev.length)return [lane,"无动作","—","—",asOf,"—","—",""];
+      return ev.map(r=>[
+        lane,String(r.event_type||"—").toUpperCase(),r.symbol||"—",
+        r.signal_date||"—",r.event_date||"—",
+        String(r.event_type||"").toUpperCase()==="EXIT"?usd(r.exit_price):usd(r.entry_price),
+        finite(r.capital_allocated_pct)?number(r.capital_allocated_pct,1)+"%":"—",
+        r.mechanism||"Forward paper event"
+      ]);
+    }).flat();
+    $("#todayActionTable").innerHTML='<table><thead><tr>'+actionHeaders.map(h=>'<th>'+esc(h)+'</th>').join("")+
+      '</tr></thead><tbody>'+actionRows.map(r=>'<tr>'+r.map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
+
+    const posHeaders=["Lane","标的","入场日期","模型成本","仓位","风险预算","止损","目标","浮盈亏","状态"];
+    $("#currentPositionTable").innerHTML=openRows.length
+      ? '<table><thead><tr>'+posHeaders.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+
+        openRows.map(r=>'<tr>'+[
+          r.lane_id,r.symbol,r.entry_date||"—",usd(r.entry_price),
+          finite(r.capital_allocated_pct)?number(r.capital_allocated_pct,1)+"%":"—",
+          finite(r.risk_budget_pct)?number(r.risk_budget_pct,2)+"%":"—",
+          usd(r.stop),usd(r.target),"—","持有中"
+        ].map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>'
+      : '<div class="empty">截至 '+esc(asOf)+'，正式 Forward 账本没有开放持仓。</div>';
+
     const header=["策略宇宙","代码","证券品种","箱体种类","信号日期","买入日期","买入价","卖出日期","卖出价","单笔净收益","离场原因","时间精度"];
     const cols=[r=>r.universe,r=>r.symbol,r=>r.asset_type,r=>r.box_scale,r=>r.signal_date,
       r=>r.entry_date,r=>usd(r.entry_price),r=>r.exit_date||"未记录",r=>usd(r.exit_price),
@@ -173,16 +232,20 @@
     $("#researchTradeTable").innerHTML=tradeRows.length
       ? '<table><thead><tr>'+header.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+body+'</tbody></table>'
       : '<div class="empty">当前筛选条件下没有研究交易。</div>';
-    const officialHeaders=["Lane","标的","品种","事件日期","类型","信号日期","进场日期","进场价","离场日期","离场价","收益","备注"];
-    $("#officialTradeTable").innerHTML=official.length
-      ? '<table><thead><tr>'+officialHeaders.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+
-       official.map(r=>'<tr>'+[
-         r.lane_id,r.symbol,r.asset_type||"证券（未核实）",r.event_date,r.event_type,
-         r.signal_date||"—",r.entry_date||"—",usd(r.entry_price),r.exit_date||"—",
-         usd(r.exit_price),finite(r.net_return_pct)?number(r.net_return_pct,2)+"%":"—",
-         "Forward paper event（日线）"
+
+    const officialHeaders=["Lane","标的","动作","信号日期","进场日期","进场价","仓位","风险预算","止损","目标","离场日期","离场价","收益","离场原因"];
+    const history=[...official].sort((a,b)=>String(b.event_date).localeCompare(String(a.event_date))||String(a.lane_id||"").localeCompare(String(b.lane_id||"")));
+    $("#officialTradeTable").innerHTML=history.length
+      ? '<table><thead><tr>'+officialHeaders.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+
+       history.map(r=>'<tr>'+[
+         r.lane_id,r.symbol,String(r.event_type||"—").toUpperCase(),
+         r.signal_date||"—",r.entry_date||"—",usd(r.entry_price),
+         finite(r.capital_allocated_pct)?number(r.capital_allocated_pct,1)+"%":"—",
+         finite(r.risk_budget_pct)?number(r.risk_budget_pct,2)+"%":"—",
+         usd(r.stop),usd(r.target),r.exit_date||"—",usd(r.exit_price),
+         finite(r.net_return_pct)?number(r.net_return_pct,2)+"%":"—",r.exit_reason||"—"
        ].map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>'
-      : '<div class="empty">截至 '+esc(tradeSet.official.as_of_market_date||"最新已验证市场日期")+'，FWD-01～06 尚无正式交易事件。这里不会拿研究交易冒充实盘交易单。</div>';
+      : '<div class="empty">截至 '+esc(asOf)+'，FWD-01～06 尚无正式交易事件。</div>';
     tradeReady=true;
   }
   function exportVisibleCsv(){

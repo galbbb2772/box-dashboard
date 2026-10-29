@@ -146,10 +146,28 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
 </section>
 <section id="trades" class="panel">
   <div class="card">
-   <h2>逐笔交易明细 · 单独交易单</h2>
-   <div class="note">以下逐笔记录分为<strong>研究回测交易</strong>与<strong>正式 Forward 纸面事件</strong>。Top300 / Top500 是两个独立研究宇宙，有重复股票，不可合计为唯一实际成交次数。所有时间仅精确到美股交易日；源数据没有盘中成交时分。该网页公开可读。</div>
-   <div id="tradeSummary" class="section"></div>
-   <h2 class="section">研究交易 · Simple Core Transport V17（2026年4月—10月）</h2>
+    <h2>BOX Forward · 交易监控</h2>
+    <div class="note">这里专门回答三件事：<strong>今天每条 FWD 做了什么</strong>、<strong>现在持有什么</strong>、<strong>过去每一笔怎么进出</strong>。成本与日期来自正式 Forward 纸面账本，不是券商真实成交；没有可靠字段时明确显示「—」，不反推、不补值。</div>
+    <div id="tradeSummary" class="section"></div>
+  </div>
+  <div class="section card">
+    <h2>① 今日动作 · FWD-01～FWD-06</h2>
+    <div id="tradeAsOf" class="small">读取最新已处理交易日……</div>
+    <div id="todayActionTable" class="tablewrap section"><div class="empty">加载今日动作……</div></div>
+  </div>
+  <div class="section card">
+    <h2>② 当前持仓 · 每条系统现在拿着什么</h2>
+    <div id="currentPositionTable" class="tablewrap section"><div class="empty">重建当前持仓……</div></div>
+    <div class="small section">“成本”是模型纸面入场价；“仓位”是该 Forward 事件记录的资本分配比例。若源账本没有逐股最新 EOD 标价，当前浮盈亏显示「—」，不会用净值曲线倒推个股盈亏。</div>
+  </div>
+  <div class="section card">
+    <h2>③ 历史成交记录 · 正式 Forward FWD-01～FWD-06</h2>
+    <div id="officialTradeTable" class="tablewrap"><div class="empty">加载正式 Forward 交易事件……</div></div>
+    <div class="small section">完整保留信号日、入场日、模型成本、仓位、止损/目标、离场日、离场价与离场原因。这里只显示冻结后的 prospective paper Forward。</div>
+  </div>
+  <div class="section card">
+   <h2>研究交易 · Simple Core Transport V17（2026年4月—10月）</h2>
+   <div class="note">这一块是研究回测交易，与上面的 FWD-01～06 正式 Forward 分开。Top300 / Top500 是两个独立研究宇宙，有重复股票，不可合计为唯一实际成交次数。</div>
    <div class="range section" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
       <label for="tradeUniverse" class="small">策略宇宙</label><select id="tradeUniverse" style="padding:9px;background:#131b28;color:#fff;border:1px solid #35425a;border-radius:7px"><option value="ALL">Top300 + Top500</option><option value="Top300">Top300</option><option value="Top500">Top500</option></select>
       <label for="tradeScale" class="small">箱体种类</label><select id="tradeScale" style="padding:9px;background:#131b28;color:#fff;border:1px solid #35425a;border-radius:7px"><option value="ALL">全部</option><option value="小箱体">小箱体</option><option value="大箱体">大箱体</option></select>
@@ -157,12 +175,7 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
       <button id="downloadResearchTrades" style="padding:9px 12px;background:#17324d;color:#fff;border:1px solid #426188;border-radius:7px">导出 CSV</button>
    </div>
    <div id="researchTradeTable" class="tablewrap section"><div class="empty">正在读取真实研究交易记录……</div></div>
-   <div class="small section">价格与收益仅引用研究 CSV。原文件没有卖出价格字段时显示「—」，不推算成交价。ETF 仅在可识别时标注，其余证券类型待逐项核实；小箱体与大箱体属于箱体策略类型。</div>
-  </div>
-  <div class="section card">
-    <h2>正式前瞻 Forward · FWD-01～FWD-06 交易事件</h2>
-    <div id="officialTradeTable" class="tablewrap"><div class="empty">加载正式 Forward 交易事件……</div></div>
-    <div class="small section">此处为冻结策略的纸面交易事件，不代表已向真实券商下单。只有 GitHub 正式账本出现新事件才会增加记录。</div>
+   <div class="small section">研究 CSV 没有的卖出价继续显示「—」，不推算成交价。</div>
   </div>
 </section>
 <section id="live" class="panel"><div class="two"><div class="card"><div class="label">BOX · Official prospective paper Forward equity (normalized=1, Oct 19)</div><div id="liveEquity" class="chart"></div></div><div class="card"><div class="label">Forward snapshot</div><div id="regimeSnapshot"></div></div></div><div class="section card"><div class="label">六条 BOX 策略 · 最新状态</div><div id="laneOverview" class="tablewrap"></div></div></section>
@@ -255,7 +268,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 });
 })().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
 </script>
-<script src="assets/forward-detail.js?v=20261024-3"></script>
+<script src="assets/forward-detail.js?v=20261029-trade-monitor-v1"></script>
 <script src="assets/historical-analytics.js?v=20261024-2019-tabs-v2"></script>
 
 </body>

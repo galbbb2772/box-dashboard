@@ -200,7 +200,7 @@
     const actionHeaders=["Lane","今日动作","标的","信号日","事件日","入场/离场价","仓位","备注"];
     const actionRows=lanes.map(lane=>{
       const ev=todayEvents.filter(r=>r.lane_id===lane);
-      if(!ev.length)return [lane,"无动作","—","—",asOf,"—","—",""];
+      if(!ev.length)return [[lane,"无动作","—","—",asOf,"—","—",""]];
       return ev.map(r=>[
         lane,String(r.event_type||"—").toUpperCase(),r.symbol||"—",
         r.signal_date||"—",r.event_date||"—",

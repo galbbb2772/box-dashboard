@@ -6,7 +6,7 @@
       "id": "A2-BROAD-PULLBACK-RISK-ACCELERATOR-V1",
       "name": "A2 Broad-Pullback Risk Accelerator V1",
       "parent": "FWD-04 parent stack: Geometry V3 + Capital V1.1 + A2R V1.1 + Sync-High Shadow V2",
-      "classification": "RESEARCH_SHADOW_ONLY",
+      "classification": "BOX_RESEARCH_SHADOW_ONLY",
       "historical_start": "2019-01-02",
       "historical_end": "2026-03-31",
       "historical_ending_x": 11.641879442586877,
@@ -23,8 +23,11 @@
       "combined_peak_date": "2026-06-15",
       "true_prospective_forward_status": "NOT_FROZEN_NOT_STARTED",
       "direct_forward_evidence": false,
-      "identity_note": "The 12.8796x / 13.3992x curve was previously mislabeled as FWD-04. It belongs to this separate Broad-Pullback research line.",
-      "source_curve": "geometry_v3_capital_v1_1_a2r_v1_1_sync_shadow_pullback_research_combined_curve.csv"
+      "identity_note": "The 12.8796x / 13.3992x curve was previously mislabeled as FWD-04. It belongs to this BOX-internal Broad-Pullback research branch.",
+      "source_curve": "geometry_v3_capital_v1_1_a2r_v1_1_sync_shadow_pullback_research_combined_curve.csv",
+      "family": "BOX",
+      "research_tree": "Geometry V3",
+      "relationship": "BOX internal research branch derived from the FWD-04 parent stack; not a separate strategy family"
     }
   ]
 }

@@ -23,7 +23,7 @@
    yaxis:{gridcolor:"#273345"}
  };
  const chartConfig={responsive:true,displayModeBar:false,displaylogo:false,scrollZoom:false,doubleClick:false};
- let lanes=null, benchmarks=null, allDates=[], range=null, interacting=false, ready=false, lastSelected=null, historicalAudit=null;
+ let lanes=null, broadPullback=null, benchmarks=null, allDates=[], range=null, interacting=false, ready=false, lastSelected=null, historicalAudit=null;
  const monthDays={"1M":30,"3M":91,"6M":183,"12M":365,"1Y":365,"2Y":730,"3Y":1096};
  async function load(path){
    const r=await fetch(path+"?v="+Date.now(),{cache:"no-store"});
@@ -181,8 +181,8 @@
    const start=allDates[0],end=allDates.at(-1);
    $("#historicalCoverage").innerHTML=
      '<b>当前曲线可见范围：</b>'+esc(start)+' → '+esc(end)+
-     ' · FWD-01～04 已接入2019-01-02起的真实逐日历史；FWD-05/06因2019–2021逐日原件仍缺，曲线暂从2022-01-03开始。'+
-     ' · 图表不会为缺失时期插值。所选区间内各策略各自从首个真实观察点归一化为1。';
+     ' · FWD-01～06 均已接入2019-01-02起的逐日历史；FWD-05/06来自后续原始市场数据+冻结规则精确重建。'+
+     ' · 黄色虚线为 BOX 内部 Broad-Pullback Research Shadow，不属于正式 FWD-01～06。所选区间内各曲线均从首个真实观察点归一化为1。';
  }
  function showOriginalMultipliers(){
    if(!historicalAudit||historicalAudit.historical_start!=="2019-01-02"||historicalAudit.historical_sessions!==1821)
@@ -243,6 +243,15 @@
  }
  async function drawCharts(selectedRows){
    const equity=traces(selectedRows,"equity"), returns=traces(selectedRows,"returns");
+   if(broadPullback){
+      const start=selectedRows[0].stats.start,end=selectedRows[0].stats.end;
+      const obs=broadPullback.series.filter(x=>x.date>=start&&x.date<=end);
+      if(obs.length>=MIN_POINTS){
+         const anchor=obs[0].equity;
+         equity.push({x:obs.map(x=>x.date),y:obs.map(x=>x.equity/anchor),name:"BOX Research · Broad-Pullback V1",type:"scatter",mode:"lines",line:{color:"#f2dc78",width:3,dash:"dash"},hovertemplate:"%{x}<br>%{fullData.name}<br>%{y:.4f}×<extra></extra>"});
+         returns.push({x:obs.map(x=>x.date),y:obs.map(x=>100*(x.equity/anchor-1)),name:"BOX Research · Broad-Pullback V1",type:"scatter",mode:"lines",line:{color:"#f2dc78",width:3,dash:"dash"},hovertemplate:"%{x}<br>%{fullData.name}<br>%{y:.2f}%<extra></extra>"});
+      }
+   }
    // All selected lines originate at 1.0000 and 0.0000% respectively.
    for(const t of equity)if(Math.abs(t.y[0]-1)>1e-12)throw Error("历史策略净值起点不是 1："+t.name);
    const xLimits=[selectedRows[0].stats.start,selectedRows[0].stats.end];
@@ -343,20 +352,20 @@
    }));
  }
  bind();
- Promise.all([...laneIds.map(x=>load("data/history/"+x+".json")),load("data/benchmarks.json"),load("data/full_historical_audit.json"),load("data/history_prefix_2019_2021.json")]).then(async raw=>{
+ Promise.all([...laneIds.map(x=>load("data/history/"+x+".json")),load("data/benchmarks.json"),load("data/full_historical_audit.json"),load("data/history_prefix_2019_2021.json"),load("data/history/BOX-RS-BROAD-PULLBACK-V1.json")]).then(async raw=>{
    lanes=raw.slice(0,6).map(decode);
    benchmarks=raw[6];historicalAudit=raw[7];
-   const prefix=raw[8];
+   const prefix=raw[8]; broadPullback=decode(raw[9]);
    if(JSON.stringify(lanes.map(l=>l.id))!==JSON.stringify(laneIds))throw Error("六条策略身份与顺序异常");
    lanes=lanes.map(l=>["FWD-01","FWD-02","FWD-03","FWD-04"].includes(l.id)?attachRecoveredPrefix(l,prefix):l);
-   if(lanes.slice(0,4).some(l=>l.series[0].date!=="2019-01-02"))throw Error("FWD-01～04未真正接入2019曲线");
-   // Navigation uses the longest verified daily lane. Shorter lanes simply begin
-   // at their own first verified observation; missing history is never interpolated.
+   if(lanes.some(l=>l.series[0].date!=="2019-01-02"))throw Error("FWD-01～06未全部接入2019曲线");
+   if(!broadPullback || broadPullback.series[0].date!=="2019-01-02" || broadPullback.series.at(-1).date!=="2026-10-09")throw Error("Broad-Pullback BOX研究线历史覆盖异常");
+   // Navigation uses the verified full-history daily calendar.
    allDates=lanes[0].series.map(x=>x.date);
    if(allDates.length<1800)throw Error("恢复后的历史观察点异常偏少");
    marksAndRatio();showOriginalMultipliers();constrainDateInputs();
    const fullRows=lanes.map(l=>rowFor(l,allDates));
-   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"当前可验证逐日曲线：FWD-01～04为2019-01-02起；FWD-05/06暂为2022-01-03起。表内起止日就是每条线真正有数据的范围。");
+   $("#historicalAllMetrics").innerHTML=tableRows(fullRows,"当前可验证逐日曲线：FWD-01～06均从2019-01-02开始；FWD-05/06为后续精确重建日线。Broad-Pullback Research Shadow 单独叠加在历史图，不计入这张六主线统计表。");
    benchmarkComparison();
    await render(allDates[0],allDates.at(-1),"ALL");
    ready=true;

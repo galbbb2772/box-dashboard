@@ -1,11 +1,11 @@
 {
   "schema": "BOX-ROBUST-PROSPECTIVE-FORWARD-PUBLIC-V1",
-  "generated_at_utc": "2026-10-29T17:30:05.270001+00:00",
+  "generated_at_utc": "2026-10-30T17:06:17.751453+00:00",
   "official_signal_boundary": "2026-10-19",
   "earliest_official_entry": "2026-10-20",
-  "last_processed_market_date": "2026-10-28",
-  "official_daily_rows": 48,
-  "official_trade_events": 6,
+  "last_processed_market_date": "2026-10-29",
+  "official_daily_rows": 54,
+  "official_trade_events": 12,
   "min_visible_points": 10,
   "lanes": [
     {
@@ -117,6 +117,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-29",
+          "lane_id": "FWD-01",
+          "equity": 1.086586626632359,
+          "daily_return_pct": 2.8364350389087134,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 0.0,
+          "net_exposure_pct": 0.0,
+          "cash_pct": 100.0,
+          "borrow_pct": 0.0,
+          "open_positions": 0,
+          "closed_trades_cum": 1
         }
       ]
     },
@@ -229,6 +242,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-29",
+          "lane_id": "FWD-02",
+          "equity": 1.086586626632359,
+          "daily_return_pct": 2.8364350389087134,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 0.0,
+          "net_exposure_pct": 0.0,
+          "cash_pct": 100.0,
+          "borrow_pct": 0.0,
+          "open_positions": 0,
+          "closed_trades_cum": 1
         }
       ]
     },
@@ -341,6 +367,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-29",
+          "lane_id": "FWD-03",
+          "equity": 1.086586626632359,
+          "daily_return_pct": 2.8364350389087134,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 0.0,
+          "net_exposure_pct": 0.0,
+          "cash_pct": 100.0,
+          "borrow_pct": 0.0,
+          "open_positions": 0,
+          "closed_trades_cum": 1
         }
       ]
     },
@@ -453,6 +492,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-29",
+          "lane_id": "FWD-04",
+          "equity": 1.086586626632359,
+          "daily_return_pct": 2.8364350389087134,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 0.0,
+          "net_exposure_pct": 0.0,
+          "cash_pct": 100.0,
+          "borrow_pct": 0.0,
+          "open_positions": 0,
+          "closed_trades_cum": 1
         }
       ]
     },
@@ -565,6 +617,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-29",
+          "lane_id": "FWD-05",
+          "equity": 1.086586626632359,
+          "daily_return_pct": 2.8364350389087134,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 0.0,
+          "net_exposure_pct": 0.0,
+          "cash_pct": 100.0,
+          "borrow_pct": 0.0,
+          "open_positions": 0,
+          "closed_trades_cum": 1
         }
       ]
     },
@@ -677,6 +742,19 @@
           "borrow_pct": 0.0,
           "open_positions": 1,
           "closed_trades_cum": 0
+        },
+        {
+          "date": "2026-10-29",
+          "lane_id": "FWD-06",
+          "equity": 1.086586626632359,
+          "daily_return_pct": 2.8364350389087134,
+          "drawdown_pct": 0.0,
+          "gross_exposure_pct": 0.0,
+          "net_exposure_pct": 0.0,
+          "cash_pct": 100.0,
+          "borrow_pct": 0.0,
+          "open_positions": 0,
+          "closed_trades_cum": 1
         }
       ]
     }

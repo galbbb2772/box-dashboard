@@ -78,11 +78,11 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
     <h2>原始历史累计倍数 · 5× / 7× / 9× / 10× / 11× 是什么？</h2>
     <div class="note"><strong>已核对原始回测起点：2019年1月2日，初始资金净值为1.0000。</strong> 历史回测截至2026年3月31日（1,821个交易日），2026年4月1日至10月9日为独立研究窗口（133日）。原始累计倍数与从2022年截取、重新归一化的区间收益不能混算。下表给出原始回测的真实起点及历史CAGR。</div>
     <div id="originalMultipleTable" class="section tablewrap"><div class="empty">正在核对原始历史倍数……</div></div>
-    <div class="small section">FWD-01～04的2019–2021原始每日曲线已寻回并已接入下方图表；FWD-05/06的2019–2021每日曲线尚缺可独立复核原件，其历史终点有校准后的回放收据。下方2019年起的完整日线目前只有FWD-01～04，FWD-05/06完整历史CAGR仅按复现收据记录。原始倍率仅是模拟/回放研究收益，不是实际券商收益。</div>
+    <div class="small section">FWD-01～06现均已接入2019-01-02起的逐日历史。FWD-05/06使用后续从原始市场数据与冻结规则重建的精确历史日线；Broad-Pullback 作为 BOX 内部 Research Shadow 以独立虚线展示，不替代任何正式 FWD。原始倍率仅是模拟/回放研究收益，不是实际券商收益。</div>
   </div>
   <div class="section card" id="historicalAnalytics">
-    <h2>当前可见历史研究 · 六策略净值与累计收益率</h2>
-    <div class="note">FWD-01～04已展示2019-01-02至2026-10-09的逐日历史（1,954日）；FWD-05、06尚缺2019—2021原件，所以从2022-01-03才有每日曲线；这不是六条策略均已完成全历史复现，也不等于 2026 年 10 月冻结后独立 Forward OOS。原始净值文件保留不变；下方的两个图表均以<strong>所选区间首个可验证观察交易日 = 1.0000</strong> 为基准。净值曲线与累计收益曲线均不添加虚构行情。</div>
+    <h2>BOX 历史净值 · 六条正式 FWD + 一条 Research Shadow</h2>
+    <div class="note">FWD-01～06现在都展示2019-01-02至2026-10-09的逐日历史；其中FWD-05/06已替换为后续精确重建版本。黄色虚线是 BOX / Geometry V3 内部的 Broad-Pullback Research Shadow，用来保留此前13.399×研究路径，但不计入正式FWD-01～06，也不代表独立Prospective OOS。下方两个图表均以<strong>所选区间首个可验证观察交易日 = 1.0000</strong> 为基准，不插值、不补造净值。</div>
     <div class="small section" id="historicalCoverage">读取已保存六条策略历史数据……</div>
     <div class="range section" id="historicalWindowPresets" style="display:flex;gap:7px;flex-wrap:wrap">
       <button data-period="1M">1个月</button>
@@ -115,9 +115,9 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
     <div class="note section">*“上涨日占比” = 上涨日 ÷（上涨日 + 下跌日），不是逐笔交易胜率；“日收益期望” = 相邻观察日日收益简单平均值；Sharpe 使用日收益标准差、√252年化和零无风险利率假设。盈利/亏损连续段统计连续上涨/下跌日，不是逐笔仓位或成交段。实际下单日期、实际在仓日和交易级胜率/期望值需要逐笔成交与持仓流水，目前不能从净值曲线可靠反推。</div>
   </div>
   <div class="section card">
-    <h2>六策略 · 各自拥有逐日数据的可见区间统计（与原始完整历史CAGR分开）</h2>
+    <h2>六条正式 FWD · 完整逐日历史统计（Research Shadow 单列）</h2>
     <div id="historicalAllMetrics" class="tablewrap section"><div class="empty">计算中……</div></div>
-    <div class="small section">表中各策略的CAGR仅针对其实际有逐日记录的可见区间：FWD-01～04为2019-01-02起，FWD-05/06为2022-01-03起；FWD-05/06的2019起完整历史CAGR请看上方原始回测表，勿混淆；最大回撤为区间内净值相对先前最高净值的最大跌幅；最差单日代表相邻两个观察交易日的最差净值变化。没有假定策略始终满仓。</div>
+    <div class="small section">FWD-01～06均已有2019-01-02起的逐日曲线；FWD-05/06来自精确重建。表内最大回撤为区间内净值相对先前最高净值的最大跌幅，最差单日为相邻观察交易日的最差净值变化。Broad-Pullback Research Shadow 不混入这张六主线统计表。</div>
   </div>
   <div class="section card">
     <h2>六条策略 vs 三大指数 · 有数据的共同交易日</h2>
@@ -125,7 +125,7 @@ td.wrapcell{text-align:left;white-space:normal;min-width:280px;line-height:1.45}
     <div id="historyBenchmarkSummary" class="section"><div class="empty">核对 SPY、QQQ、DIA 数据覆盖范围……</div></div>
   </div>
   <div class="section card" id="historicalResearchLines">
-    <h2>BOX 历史研究线 · 不并入正式 FWD-01～06</h2>
+    <h2>BOX 历史研究线 · Broad-Pullback Research Shadow</h2>
     <div class="note"><strong>A2 Broad-Pullback Risk Accelerator V1</strong> 已从旧 FWD-04 错标中拆出，作为 <strong>BOX / Geometry V3 体系内部的 Research Shadow 分支</strong>保存。这里展示它自己的历史证据和 13.399× 峰值；它仍属于 BOX，只是不再冒充正式 FWD-04。</div>
     <div id="historicalResearchLineTable" class="tablewrap section"><div class="empty">读取历史研究线……</div></div>
   </div>
@@ -274,7 +274,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 })().catch(e=>{document.body.insertAdjacentHTML("beforeend",'<div style="padding:20px;color:#ff7d89">Dashboard load error: '+esc(e)+'</div>')});
 </script>
 <script src="assets/forward-detail.js?v=20261029-trade-monitor-v1"></script>
-<script src="assets/research-lines.js?v=20261030-broad-pullback-v1"></script>\n<script src="assets/historical-analytics.js?v=20261024-2019-tabs-v2"></script>
+<script src="assets/research-lines.js?v=20261030-broad-pullback-v1"></script>\n<script src="assets/historical-analytics.js?v=20261030-full-six-plus-broad-v1"></script>
 
 </body>
 </html>

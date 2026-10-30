@@ -1,0 +1,30 @@
+{
+  "schema": "BOX_RESEARCH_LINES_V1",
+  "generated_at_utc": "2026-10-30T10:38:00Z",
+  "lines": [
+    {
+      "id": "A2-BROAD-PULLBACK-RISK-ACCELERATOR-V1",
+      "name": "A2 Broad-Pullback Risk Accelerator V1",
+      "parent": "FWD-04 parent stack: Geometry V3 + Capital V1.1 + A2R V1.1 + Sync-High Shadow V2",
+      "classification": "RESEARCH_SHADOW_ONLY",
+      "historical_start": "2019-01-02",
+      "historical_end": "2026-03-31",
+      "historical_ending_x": 11.641879442586877,
+      "historical_cagr_pct": 40.3485,
+      "historical_mdd_pct": -10.5935,
+      "historical_sharpe": 2.4616,
+      "parent_fwd04_historical_ending_x": 10.27223852340613,
+      "research_forward_start": "2026-04-01",
+      "research_forward_end": "2026-10-09",
+      "research_forward_return_pct": 10.6319946243,
+      "research_forward_accelerator_triggers": 0,
+      "combined_research_ending_x": 12.879643439094878,
+      "combined_peak_x": 13.39921035190674,
+      "combined_peak_date": "2026-06-15",
+      "true_prospective_forward_status": "NOT_FROZEN_NOT_STARTED",
+      "direct_forward_evidence": false,
+      "identity_note": "The 12.8796x / 13.3992x curve was previously mislabeled as FWD-04. It belongs to this separate Broad-Pullback research line.",
+      "source_curve": "geometry_v3_capital_v1_1_a2r_v1_1_sync_shadow_pullback_research_combined_curve.csv"
+    }
+  ]
+}

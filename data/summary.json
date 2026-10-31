@@ -1,11 +1,11 @@
 {
   "schema": "BOX-DASHBOARD-PUBLIC-SUMMARY-V2",
   "exporter_version": "1.2",
-  "generated_at_utc": "2026-10-30T17:06:17.751453+00:00",
-  "as_of": "2026-10-29",
+  "generated_at_utc": "2026-10-31T16:14:19.209185+00:00",
+  "as_of": "2026-10-30",
   "historical_evidence_as_of": "2026-10-05",
-  "forward_as_of": "2026-10-29",
-  "source_window": "historical strategy evidence through 2026-10-05; official Forward through 2026-10-29",
+  "forward_as_of": "2026-10-30",
+  "source_window": "historical strategy evidence through 2026-10-05; official Forward through 2026-10-30",
   "production_strategy": null,
   "counts": {
     "formalized": 10,
